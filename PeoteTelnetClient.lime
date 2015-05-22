@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	
+	<meta title="PeoteTelnetClient" package="de.peote.telnet" version="0.1.0" company="Sylvio Sell - maitag" />
+	<app main="PeoteTelnetClient" path="Export" file="PeoteTelnetClient" />
+	
+	<window fps="60" width="800" height="600" vsync="true" antialiasing="4" resizable="true" hardware="true" allow-shaders="true" require-shaders="true" depth-buffer="true" stencil-buffer="false" />
+	<window if="html5" fps="0" width="0" height="0" />
+	
+	<source path="Source" />
+	<!-- external haxe libs -->
+	<source path="../peote-view/Source" />
+	<source path="../peote-socket/Source" />
+	
+	<haxelib name="lime" />
+	<haxelib name="format" />
+	
+	<assets path="Assets" rename="assets" exclude="lime.svg" />
+	<icon path="Assets/lime.svg" />
+	
+	<!--<haxedef name="debugtelnet" />
+	<haxedef name="debugterminal" />
+	<haxedef name="debugansi" />
+	<haxedef name="debugkeyboard" />-->
+	
+</project>
