@@ -1,4 +1,7 @@
-Export/html5/
+Export/html5/haxe/
+Export/html5/bin/assets/
+Export/html5/bin/index.html
+Export/html5/bin/manifest
 Export/windows/
 Export/android/
-
+.build
