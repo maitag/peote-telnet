@@ -6,9 +6,12 @@ to run on multiple hardware devices.
 
 ####Depends
 [peote-socket](https://github.com/maitag/peote-socket) and [peote-view](https://github.com/maitag/peote-view)
-
+(please download this first)
 
 ####Build
+
+(first look into peoteTelnetClient.lime file where external sources are!)
+
 
 #####native OS:
 
