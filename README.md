@@ -10,10 +10,13 @@ to run on multiple hardware devices.
 
 ####Build
 
-`$ lime build peoteTelnetClient.lime linux  (android/windows)` - for native OS
+#####native OS:
+
+`$ lime build peoteTelnetClient.lime linux  (android/windows)`
 
 
-for Javascript/WebGL:
+
+#####Javascript/WebGL:
 
 `$ lime build peoteTelnetClient.lime html5`
 
