@@ -14,7 +14,9 @@ to run on multiple hardware devices.
 
 
 for Javascript/WebGL:
+
 `$ lime build peoteTelnetClient.lime html5`
+
 see html4-test folder how to get it run with flash raw socket (PeoteSocketBridge.swf)
 
 ####Why another Terminal Emulation ?
