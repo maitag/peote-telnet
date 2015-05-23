@@ -2,11 +2,11 @@
  *        o-o    o-o  o-o-o  o-o     
  *       o   o  o        o      o    
  *      o-o-o  o-o   o    o    o-o   
- *     o      o     (=)    o      o  
+ *     o      o     (_)    o      o  
  *    o      o-o    / \     o    o-o 
  * 
- * PEOTE Telnet Client - haxe 2D OpenGL Render Library
- * Copyright (c) 2014 Sylvio Sell, http://maitag.de
+ * PEOTE TELNET TERMINAL - haxe terminal emulation and telnet-client
+ * Copyright (c) 2015 Sylvio Sell, http://maitag.de
  * 
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -25,6 +25,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
 package de.peote.terminal;
 
 import haxe.io.StringInput;
