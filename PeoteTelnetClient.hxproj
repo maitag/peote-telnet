@@ -21,16 +21,16 @@
     <class path="Source" />
     <class path="..\peote-view\Source" />
     <class path="..\peote-socket\Source" />
-    <class path="Export\windows\cpp\haxe" />
+    <class path="Export\html5\haxe" />
   </classpaths>
   <!-- Build options -->
   <build>
-    <option directives="lime=2.4.1&#xA;format=3.1.2&#xA;tools=2.4.1&#xA;no-compilation&#xA;lime-native&#xA;windows&#xA;desktop" />
+    <option directives="lime=2.4.1&#xA;format=3.1.2&#xA;tools=2.4.1&#xA;no-compilation&#xA;lime-html5&#xA;html5&#xA;web&#xA;html5&#xA;html" />
     <option flashStrict="False" />
     <option noInlineOnDebug="False" />
     <option mainClass="ApplicationMain" />
     <option enabledebug="False" />
-    <option additional="#--macro keep(&quot;PeoteTelnetClient&quot;)" />
+    <option additional="" />
   </build>
   <!-- haxelib libraries -->
   <haxelib>
