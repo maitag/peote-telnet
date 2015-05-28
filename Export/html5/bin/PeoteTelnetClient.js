@@ -18,6 +18,8 @@ ApplicationMain.create = function() {
 	ApplicationMain.preloader.create(ApplicationMain.config);
 	var urls = [];
 	var types = [];
+	urls.push("assets/config.conf");
+	types.push("TEXT");
 	urls.push("assets/keyboard.conf");
 	types.push("TEXT");
 	urls.push("assets/liberation_font_320x512.png");
@@ -109,6 +111,9 @@ var DefaultAssetLibrary = function() {
 	this.className = new haxe.ds.StringMap();
 	lime.AssetLibrary.call(this);
 	var id;
+	id = "assets/config.conf";
+	this.path.set(id,id);
+	this.type.set(id,"TEXT");
 	id = "assets/keyboard.conf";
 	this.path.set(id,id);
 	this.type.set(id,"TEXT");
@@ -804,6 +809,11 @@ PeoteTelnetClient.__super__ = lime.app.Application;
 PeoteTelnetClient.prototype = $extend(lime.app.Application.prototype,{
 	init: function(context) {
 		var _g = this;
+		var regex = new EReg("//.*?$","gm");
+		var req = js.Browser.createXMLHttpRequest();
+		req.open("GET","assets/config.conf",false);
+		req.send();
+		this.conf = JSON.parse(regex.replace(req.responseText,""));
 		switch(context[1]) {
 		case 0:
 			var gl = context[2];
@@ -811,22 +821,22 @@ PeoteTelnetClient.prototype = $extend(lime.app.Application.prototype,{
 			this.height = this.windows[0].__height;
 			this.startTime = haxe.Timer.stamp();
 			this.peoteSocket = new PeoteSocket({ onConnect : function(connected,msg) {
-				haxe.Log.trace("onConnect:" + connected + " - " + msg,{ fileName : "PeoteTelnetClient.hx", lineNumber : 79, className : "PeoteTelnetClient", methodName : "init"});
+				haxe.Log.trace("onConnect:" + connected + " - " + msg,{ fileName : "PeoteTelnetClient.hx", lineNumber : 93, className : "PeoteTelnetClient", methodName : "init"});
 				_g.is_connected = true;
 				_g.peoteTerminal = new de.peote.terminal.PeoteTerminal(_g.peoteTelnet,_g.peoteView,_g.width,_g.height,256);
 				_g.peoteTerminal.onWindowResize(_g.width,_g.height);
 			}, onClose : function(msg1) {
-				haxe.Log.trace("onClose:" + msg1,{ fileName : "PeoteTelnetClient.hx", lineNumber : 85, className : "PeoteTelnetClient", methodName : "init"});
+				haxe.Log.trace("onClose:" + msg1,{ fileName : "PeoteTelnetClient.hx", lineNumber : 99, className : "PeoteTelnetClient", methodName : "init"});
 				_g.is_connected = false;
 			}, onError : function(msg2) {
-				haxe.Log.trace("onError:" + msg2,{ fileName : "PeoteTelnetClient.hx", lineNumber : 89, className : "PeoteTelnetClient", methodName : "init"});
+				haxe.Log.trace("onError:" + msg2,{ fileName : "PeoteTelnetClient.hx", lineNumber : 103, className : "PeoteTelnetClient", methodName : "init"});
 			}, onData : $bind(this,this.onData)});
 			this.peoteTelnet = new de.peote.telnet.PeoteTelnet(this.peoteSocket);
 			this.peoteView = new de.peote.view.PeoteView(3,10);
-			this.peoteSocket.connect("192.168.1.50",23);
+			this.peoteSocket.connect(this.conf.server,this.conf.port);
 			break;
 		default:
-			haxe.Log.trace("only opengl supported",{ fileName : "PeoteTelnetClient.hx", lineNumber : 103, className : "PeoteTelnetClient", methodName : "init"});
+			haxe.Log.trace("only opengl supported",{ fileName : "PeoteTelnetClient.hx", lineNumber : 115, className : "PeoteTelnetClient", methodName : "init"});
 		}
 	}
 	,onData: function(data) {

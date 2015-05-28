@@ -35,6 +35,8 @@ import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 #if js
 import js.html.Uint8Array;
+#else
+import lime.Assets;
 #end
 import lime.utils.ByteArray;
 
@@ -61,11 +63,23 @@ class PeoteTelnetClient extends Application {
 	var peoteTerminal:PeoteTerminal;
 	var startTime:Float;
 	
+	var conf:Dynamic;
+	
 	public function new () { super (); }
 	
 	public override function init (context:RenderContext):Void
 	{	
-		#if debugtelnet trace("DEBUG"); #end
+		// load config from json file
+		var regex = new EReg("//.*?$","gm");
+		#if js
+		var req = js.Browser.createXMLHttpRequest();
+		req.open('GET', "assets/config.conf", false);
+		req.send();
+		conf = haxe.Json.parse( regex.replace(req.responseText, "") );
+		#else
+		conf = haxe.Json.parse( regex.replace(Assets.getBytes("assets/config.conf").asString(), "") ); // TODO: problem with getText (.txt ??)
+		#end
+		
 		switch (context) {
 			case OPENGL (gl):
 				
@@ -95,9 +109,7 @@ class PeoteTelnetClient extends Application {
 				peoteView = new PeoteView(3, 10); // max_displaylists, max_programs (for all displaylists)
 				
 				
-				peoteSocket.connect("192.168.1.50", 23);
-				//peoteSocket.connect("mud.tubmud.de", 7680);
-				//peoteSocket.connect("", );
+				peoteSocket.connect(conf.server, conf.port);
 				
 			default:
 				trace("only opengl supported");
