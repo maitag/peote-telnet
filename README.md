@@ -28,7 +28,7 @@ look into html5-test folder, how to get it run in webbrowser with flash-rawsocke
 
 ####TESTING
 
-- first change ip/port inside Source/PeoteTelnetClient.hx to what telnet(/mud;)-server adress you wanna connect
+- edit ip/port inside Assets/config.conf to what telnet(/mud;)-server adress you wanna connect
 - if run inside webbrowser, flashplayer (raw-socket-bridge) needs permission to leave sandbox,
   wrap around that with some kind of [xml-daemon](https://github.com/maitag/peote-telnet/blob/master/html5-test/flashpolicyd.pl) running serverside
 
@@ -39,7 +39,6 @@ look into html5-test folder, how to get it run in webbrowser with flash-rawsocke
 
 ####Todo
 
-- configfile for server/port
 - outsource code to display textarea into peote-view
 - more control commands (keyboard-input)
 - local echo switch
