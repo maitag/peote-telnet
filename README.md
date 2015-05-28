@@ -1,6 +1,6 @@
 ### Peote Telnet - terminal emulation and telnet client
 
-This Library is written in [Haxe](http://haxe.org). Uses [OpenFl/Lime](http://www.openfl.org/documentation/setup/install-haxe/)
+written in [Haxe](http://haxe.org). Uses [OpenFl/Lime](http://www.openfl.org/documentation/setup/install-haxe/)
 to run on multiple hardware devices.
 
 
@@ -10,7 +10,7 @@ to run on multiple hardware devices.
 
 ####Build
 
-(first look into peoteTelnetClient.lime file where external sources are!)
+(look into peoteTelnetClient.lime file where external sources are!)
 
 
 #####native OS:
