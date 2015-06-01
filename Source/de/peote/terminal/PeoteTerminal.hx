@@ -115,7 +115,7 @@ class PeoteTerminal
 		ansiParser = new AnsiParser(this);
 	}
 	
-	public inline function localInput(keyCode:KeyCode, modifier:KeyModifier):Void 
+	public inline function onKeyDown(keyCode:KeyCode, modifier:KeyModifier):Void 
 	{
 		switch(keyCode) {
 			case KeyCode.ESCAPE:	peoteTelnet.writeByte(27);	// TODO: windows problem
@@ -123,14 +123,28 @@ class PeoteTerminal
 			case KeyCode.RIGHT:		peoteTelnet.writeByte(27); peoteTelnet.writeByte(91); peoteTelnet.writeByte('C'.charCodeAt(0));	
 			case KeyCode.UP:		peoteTelnet.writeByte(27); peoteTelnet.writeByte(91); peoteTelnet.writeByte('A'.charCodeAt(0));	
 			case KeyCode.DOWN:		peoteTelnet.writeByte(27); peoteTelnet.writeByte(91); peoteTelnet.writeByte('B'.charCodeAt(0));
-			//case KeyCode.BACKSPACE:	peoteTelnet.writeByte(TermCode.BS); 
+			case KeyCode.BACKSPACE:	peoteTelnet.writeByte(TermCode.BS); 
 			case KeyCode.DELETE :	peoteTelnet.writeByte(27); peoteTelnet.writeByte(91); peoteTelnet.writeByte('C'.charCodeAt(0)); peoteTelnet.writeByte(TermCode.BS); 
-									
-		
+			case KeyCode.RETURN :	peoteTelnet.writeByte(TermCode.CR);					
+			case KeyCode.NUMPAD_ENTER :	peoteTelnet.writeByte(TermCode.CR);					
+			
 			default:
+			#if js
 				var char:Int = KeyboardMap.toCharCode(keyCode, modifier);
 				if (char < 256) peoteTelnet.writeByte(char);
+			#end
 		}
+	}
+	
+	public inline function onTextInput(text:String):Void 
+	{
+		#if js
+			trace("textinput: (" + text + ")");
+		#else
+			var ba:ByteArray = new ByteArray();
+			ba.writeUTFBytes( text ); //ba.writeUTF( text );
+			if (text != "") peoteTelnet.writeBytes( ba );
+		#end
 	}
 	
 	public inline function remoteData(bytes:ByteArray):Void 

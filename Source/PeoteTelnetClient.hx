@@ -64,7 +64,7 @@ class PeoteTelnetClient extends Application {
 	var startTime:Float;
 	
 	var conf:Dynamic;
-	
+		
 	public function new () { super (); }
 	
 	public override function init (context:RenderContext):Void
@@ -82,6 +82,8 @@ class PeoteTelnetClient extends Application {
 		
 		switch (context) {
 			case OPENGL (gl):
+				
+				window.enableTextEvents = true;
 				
 				width = window.width;
 				height = window.height;
@@ -144,11 +146,18 @@ class PeoteTelnetClient extends Application {
 	
 	// ------------------------------------------------------------
 	// ----------- EVENT HANDLER ----------------------------------
+
+	// text input
+	public override function onTextInput (text:String):Void
+	{
+		if (is_connected) peoteTerminal.onTextInput(text);
+	}
 	
-	// keyboard Input
+	
+	// keyboard input
 	public override function onKeyDown (keyCode:KeyCode, modifier:KeyModifier):Void
 	{
-		if (is_connected) peoteTerminal.localInput(keyCode, modifier);
+		if (is_connected) peoteTerminal.onKeyDown(keyCode, modifier);
 	}
 	//public override function onKeyUp (keyCode:KeyCode, modifier:KeyModifier):Void {}
 	
@@ -161,6 +170,7 @@ class PeoteTelnetClient extends Application {
 		this.height = height;
 		if (is_connected) peoteTerminal.onWindowResize(width, height);
 	}
+	
 	public override function onMouseMove (x:Float, y:Float):Void
 	{
 		//trace("onMouseMove: " + x + "," + y );
@@ -186,7 +196,7 @@ class PeoteTelnetClient extends Application {
 		//trace("onmousewheel: " + deltaX + ',' + deltaY );
 		peoteTerminal.onMouseWheel(deltaX, deltaY);	
 	}
-
+	
 	// end Event Handler
 
 	
