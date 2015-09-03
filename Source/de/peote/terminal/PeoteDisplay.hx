@@ -5,7 +5,7 @@
  *     o      o     (_)    o      o  
  *    o      o-o    / \     o    o-o 
  * 
- * PEOTE TELNET TERMINAL - haxe terminal emulation and telnet-client
+ * PEOTE DISPLAY - display for haxe terminal emulation and telnet-client
  * Copyright (c) 2015 Sylvio Sell, http://maitag.de
  * 
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -28,21 +28,11 @@
 
 package de.peote.terminal;
 
-import haxe.io.StringInput;
-import lime.ui.KeyCode;
-import lime.ui.KeyModifier;
-import lime.Assets;
-import lime.utils.ByteArray;
-
-import de.peote.telnet.PeoteTelnet;
 import de.peote.view.PeoteView;
-import haxe.ds.Vector;
 
-class PeoteTerminal
+class PeoteDisplay
 {
-	var peoteTelnet:PeoteTelnet;
 	var peoteView:PeoteView;
-	var ansiParser:AnsiParser;
 	
 	var size_x:Int = 256;
 	var size_y:Int = 128;
@@ -56,12 +46,9 @@ class PeoteTerminal
 	var cursor_x:Int = 0;
 	var cursor_y:Int = 0;
 	
-	//var buffer:Array<Array<Int>>;
 	var buffer:Array<Array<Null<Int>>>;
 	var buffer_pos:Int = 0;
 	var max_buffer:Int;
-	
-	var keyboardMap:Map<String, Map<Int, Array<String>> >;
 	
 	var max_elements:Int;
 	var element_offset:Int = 0;
@@ -69,10 +56,8 @@ class PeoteTerminal
 	var displaylist_y_offset:Int = 0;
 	var displaylist_y_scroll:Int = 0;
 	
-	public function new(peoteTelnet:PeoteTelnet, peoteView:PeoteView, width:Int, height:Int, max_buffer:Int, max_size_x:Int=256, max_size_y:Int=256) 
+	public function new(peoteView:PeoteView, width:Int, height:Int, max_buffer:Int, max_size_x:Int=256, max_size_y:Int=256) 
 	{
-		var display:PeoteDisplay = new PeoteDisplay(peoteView, width, height, max_buffer, max_size_x, max_size_y);
-		this.peoteTelnet = peoteTelnet;
 		this.peoteView = peoteView;
 		
 		this.size_x = Math.floor(width / font_size_x);
@@ -84,7 +69,6 @@ class PeoteTerminal
 		
 		this.max_elements = max_size_x * max_size_y;
 		
-		//buffer = new Array<Array<Int>>();
 		buffer = new Array<Array<Null<Int>>>();
 		for (i in 0...max_buffer) {
 			buffer[buffer_pos + i] = new Array<Int>();			
@@ -113,70 +97,14 @@ class PeoteTerminal
 		});
 		
 		updateCursor();
-		ansiParser = new AnsiParser(this);
 	}
 	
-	public inline function onKeyDown(keyCode:KeyCode, modifier:KeyModifier):Void 
-	{
-		switch(keyCode) {
-			case KeyCode.ESCAPE:	peoteTelnet.writeByte(27);	// TODO: windows problem
-			case KeyCode.LEFT:		peoteTelnet.writeByte(27); peoteTelnet.writeByte(91); peoteTelnet.writeByte('D'.charCodeAt(0));
-			case KeyCode.RIGHT:		peoteTelnet.writeByte(27); peoteTelnet.writeByte(91); peoteTelnet.writeByte('C'.charCodeAt(0));	
-			case KeyCode.UP:		peoteTelnet.writeByte(27); peoteTelnet.writeByte(91); peoteTelnet.writeByte('A'.charCodeAt(0));	
-			case KeyCode.DOWN:		peoteTelnet.writeByte(27); peoteTelnet.writeByte(91); peoteTelnet.writeByte('B'.charCodeAt(0));
-			case KeyCode.BACKSPACE:	peoteTelnet.writeByte(TermCode.BS); 
-			case KeyCode.DELETE :	peoteTelnet.writeByte(27); peoteTelnet.writeByte(91); peoteTelnet.writeByte('C'.charCodeAt(0)); peoteTelnet.writeByte(TermCode.BS); 
-			case KeyCode.RETURN :	peoteTelnet.writeByte(TermCode.CR);					
-			case KeyCode.NUMPAD_ENTER :	peoteTelnet.writeByte(TermCode.CR);					
-			
-			default:
-			#if js
-				var char:Int = KeyboardMap.toCharCode(keyCode, modifier);
-				if (char < 256) peoteTelnet.writeByte(char);
-			#end
-		}
-	}
-	
-	public inline function onTextInput(text:String):Void 
-	{
-		#if js
-			trace("textinput: (" + text + ")");
-		#else
-			var ba:ByteArray = new ByteArray();
-			ba.writeUTFBytes( text ); //ba.writeUTF( text );
-			if (text != "") peoteTelnet.writeBytes( ba );
-		#end
-	}
-	
-	public inline function remoteData(bytes:ByteArray):Void 
-	{
-		peoteTelnet.parseTelnetData( bytes, printChar );
-	}
-
 	public inline function printChar(char:Int):Void 
 	{
-		
-		if (ansiParser.mode != AnsiParser.Off ) ansiParser.parsing(char); // Ansi Parser in work ?
-		else
-			switch(char) {
-				case TermCode.NUL:	trace("no operation");
-				case TermCode.BEL:	trace("beep beep bedebedebedebedebedebede...");
-				case TermCode.BS:	backspace();
-				case TermCode.HT:	trace('Horizontal TAB');
-				case TermCode.LF:	linefeed();
-				case TermCode.VT:	trace('Vertical TAB');
-				case TermCode.FF:	trace('Formfeed (also: New page NP)');
-				case TermCode.CR:	carriageReturn();
-				case TermCode.ESC:	ansiParser.mode = AnsiParser.Start;
-				case TermCode.DEL:	trace('Delete character');
-				
-			default:
-				if (char < 27) trace("-----> DEBUG :"+char);
-				setChar(cursor_x, cursor_y, char);
-				buffer[buffer_pos + cursor_y][cursor_x] = char;
-				cursor_x++;
-				updateCursor();
-			}
+		setChar(cursor_x, cursor_y, char);
+		buffer[buffer_pos + cursor_y][cursor_x] = char;
+		cursor_x++;
+		updateCursor();
 	}
 	
 	// --------------------------------------------------------------------------------
@@ -184,14 +112,12 @@ class PeoteTerminal
 	// --------------------------------------------------------------------------------
 
 	public inline function backspace():Void {
-		#if debugterminal trace("BackSpace"); #end
 		cursor_x--;
 		buffer[buffer_pos + cursor_y][cursor_x] = 0;
 		updateCursor();
 	}
 	
 	public inline function carriageReturn():Void {
-		#if debugterminal trace("Carriage Return"); #end
 		cursor_x=0; updateCursor();
 	}
 	
@@ -200,11 +126,9 @@ class PeoteTerminal
 		{	
 			cursor_y++;
 			updateCursor(); // TODO
-			#if debugterminal trace("LineFeed: y="+cursor_y); #end
 		}
 		else
 		{
-			#if debugterminal trace("LineFeed: y=" + cursor_y + " - Scroll Display Up"); #end
 			scrollUp();
 		}
 	}
@@ -217,67 +141,45 @@ class PeoteTerminal
 	{
 		//trace("SGR:",params);
 	}
-	public inline function cud(params:Array<String>):Void // Cursor Down
+	public inline function cursorDown(n:Int):Void
 	{
-		if (params.length == 0) params.push("1");
-		cursor_y += Std.parseInt(params[0]);
+		cursor_y += n;
 		if  (cursor_y >= size_y) cursor_y = size_y - 1;
-		#if debugansi trace('cursor down to: y=' + cursor_y); #end
 		updateCursor();
 	}
-	public inline function cuu(params:Array<String>):Void // Cursor Up
+	public inline function cursorUp(n:Int):Void
 	{
-		if (params.length == 0) params.push("1");
-		cursor_y -= Std.parseInt(params[0]);
+		cursor_y -= n;
 		if  (cursor_y < 0) cursor_y = 0;
-		#if debugansi trace('cursor up to: y=' + cursor_y); #end
 		updateCursor();
 	}
-	public inline function cuf(params:Array<String>):Void // Cursor Forward
+	public inline function cursorForward(n:Int):Void
 	{
-		if (params.length == 0) params.push("1");
-		cursor_x += Std.parseInt(params[0]);
-		if  (cursor_x >= size_x) cursor_x = size_x - 1;
-		#if debugansi trace('cursor forward to: x=' + cursor_x); #end
+		cursor_x += n;
 		updateCursor();
 	}
-	public inline function cub(params:Array<String>):Void // Cursor Back
+	public inline function cursorBack(n:Int):Void
 	{
-		if (params.length == 0) params.push("1");
-		cursor_x -= Std.parseInt(params[0]);
-		if  (cursor_x < 0) cursor_x = 0;
-		#if debugansi trace('cursor back to: x=' + cursor_x); #end
+		cursor_x -= n;
 		updateCursor();
 	}
-	public inline function cup(params:Array<String>):Void // Cursor Position
+	public inline function cursorPosition(x:Int, y:Int):Void 
 	{
-		cursor_x = 0; cursor_y = 0;
-		if (params.length == 1)
-		{
-			cursor_y =  (params[0] != '') ? Std.parseInt(params[0])-1 : 0;
-		}
-		else if (params.length == 2)
-		{
-			cursor_x = (params[1] != '') ? Std.parseInt(params[1])-1 : 0;
-			cursor_y = (params[0] != '') ? Std.parseInt(params[0])-1 : 0;
-		}
+		cursor_x = x;
+		cursor_y = y;
 		if  (cursor_y >= size_y) cursor_y = size_y - 1;
 		if  (cursor_x >= size_x) cursor_x = size_x - 1;
-		#if debugansi trace('cursor to position: x=' + cursor_x + " y=" + cursor_y); #end
 		updateCursor();
 	}
-	public inline function del(params:Array<String>):Void // Delete Char (chars right from cursor float left)
+	public inline function deleteChar(n:Int):Void // Delete Char (chars right from cursor float left)
 	{
-		if (params.length == 0) params.push("1");
-		#if debugansi trace('Delete ' + params[0] + ' Char'); #end
-		buffer[buffer_pos + cursor_y].splice(cursor_x,1); // TODO ???
+		buffer[buffer_pos + cursor_y].splice(cursor_x,n); // TODO ???
 		refresh(); // TODO: refresh_line(); only?
 	}
-	public inline function ed(params:Array<String>):Void // Erase Display
+	public inline function eraseDisplay(n:Int):Void
 	{
 		// Todo: may save all to delete into buffer
-		if (params.length == 0) params.push("0");
-		if (params[0] == "0")
+		if (n == 0)
 		{
 			#if debugansi trace('Erase Display: clear from cursor to end of screen'); #end
 			for (y in cursor_y...size_y)
@@ -286,7 +188,7 @@ class PeoteTerminal
 				for (x in 0...size_x) setChar(x,y,0);
 			}
 		}
-		else if (params[0] == "1")
+		else if (n ==1)
 		{
 			#if debugansi trace('Erase Display: clear from cursor to beginning of the screen'); #end
 			for (y in 0...cursor_y)
@@ -295,7 +197,7 @@ class PeoteTerminal
 				for (x in 0...size_x) setChar(x,y,0);
 			}
 		}
-		else if (params[0] == "2")
+		else if (n == 2)
 		{
 			#if debugansi trace('Erase Display: clear entire screen'); #end
 			for (y in 0...size_y)
@@ -306,10 +208,9 @@ class PeoteTerminal
 		}
 		
 	}
-	public inline function el(params:Array<String>):Void // Erase in Line
+	public inline function eraseInLine(n:Int):Void 
 	{
-		if (params.length == 0) params.push("0");
-		if (params[0] == "0")
+		if (n == 0)
 		{
 			#if debugansi trace('Erase in Line: clear from cursor to end of line'); #end
 			for (x in cursor_x...size_x)
@@ -317,7 +218,7 @@ class PeoteTerminal
 				buffer[buffer_pos + cursor_y][x] = 0;
 			}
 		}
-		else if (params[0] == "1")
+		else if (n == 1)
 		{
 			#if debugansi trace('Erase in Line: clear from cursor to beginning of line'); #end
 			for (x in 0...cursor_x)
@@ -325,7 +226,7 @@ class PeoteTerminal
 				buffer[buffer_pos + cursor_y][x] = 0;
 			}
 		}
-		else if (params[0] == "2")
+		else if (n == 2)
 		{
 			#if debugansi trace('Erase in Line: clear entire line'); #end
 			for (x in 0...size_x)
@@ -334,11 +235,9 @@ class PeoteTerminal
 			}
 		}
 	}	
-	public inline function il(params:Array<String>):Void // Insert Line
+	public inline function insertLine(n:Int):Void
 	{
-		if (params.length == 0) params.push("1");
-		#if debugansi trace('Insert '+params[0]+' Lines'); #end
-		for (n in 0... Std.parseInt(params[0]) ) 
+		for ( n in 0...n ) 
 		{
 			buffer.insert( buffer_pos + cursor_y, new Array<Int>()  );
 			cursor_y++;
@@ -346,12 +245,10 @@ class PeoteTerminal
 		}
 		refresh();
 	}
-	public inline function dl(params:Array<String>):Void // Delete Line
+	public inline function deleteLine(n:Int):Void
 	{
-		if (params.length == 0) params.push("1");
-		#if debugansi trace('Delete '+params[0]+' Lines'); #end
-		buffer.splice(buffer_pos + cursor_y, Std.parseInt(params[0]));
-		for (n in 0... Std.parseInt(params[0]) ) buffer.push(new Array<Int>());
+		buffer.splice(buffer_pos + cursor_y, n);
+		for (n in 0...n ) buffer.push(new Array<Int>());
 		refresh();
 	}
 	
@@ -416,14 +313,12 @@ class PeoteTerminal
 	// Events -------------------------------------------------------------------------
 	// --------------------------------------------------------------------------------
 	// TODO: recode element_offset thing
-	public inline function onWindowResize (width:Int, height:Int):Void
+	public inline function onResize (width:Int, height:Int):Void
 	{
 		// TODO: buggy!
 		size_x = Math.floor(width / font_size_x);
 		size_y = Math.floor(height / font_size_y);
 		
-		peoteTelnet.resize(size_x, size_y);
-		trace("onWindoResize",size_x,size_y);
 		if (cursor_y >= size_y)
 		{
 			buffer_pos += cursor_y - size_y + 1;
@@ -452,15 +347,5 @@ class PeoteTerminal
 		refresh();
 	}
 	
-	public inline function onMouseWheel(deltaX:Float, deltaY:Float):Void
-	{
-		// TODO
-		if ( deltaY>0 && displaylist_y_scroll - displaylist_y_offset < (max_size_y-size_y)*font_size_y) displaylist_y_scroll+=font_size_y;
-		else if (displaylist_y_scroll > displaylist_y_offset) displaylist_y_scroll -= font_size_y;
-		
-		peoteView.setDisplaylist( { displaylist: 0, yOffset: displaylist_y_scroll } );
-		updateCursor();
-	}
-		
 
 }

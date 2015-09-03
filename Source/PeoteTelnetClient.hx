@@ -33,6 +33,10 @@ import lime.graphics.RenderContext;
 import haxe.Timer;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
+import lime.ui.Window;
+import lime.ui.Touch;
+import lime.graphics.Renderer;
+
 #if js
 import js.html.Uint8Array;
 #else
@@ -67,7 +71,7 @@ class PeoteTelnetClient extends Application {
 		
 	public function new () { super (); }
 	
-	public override function init (context:RenderContext):Void
+	public override function onWindowCreate (window:Window):Void
 	{	
 		// load config from json file
 		var regex = new EReg("//.*?$","gm");
@@ -80,7 +84,7 @@ class PeoteTelnetClient extends Application {
 		conf = haxe.Json.parse( regex.replace(Assets.getBytes("assets/config.conf").asString(), "") ); // TODO: problem with getText (.txt ??)
 		#end
 		
-		switch (context) {
+		switch (window.renderer.context) {
 			case OPENGL (gl):
 				
 				window.enableTextEvents = true;
@@ -137,7 +141,7 @@ class PeoteTelnetClient extends Application {
 	#end
 	
 	// ----------- Render Loop ------------------------------------
-	public override function render(context:RenderContext):Void
+	public override function render(renderer:Renderer):Void
 	{
 		peoteView.render(Timer.stamp() - startTime, width, height, mouse_x, mouse_y, zoom);
 	}
@@ -148,14 +152,14 @@ class PeoteTelnetClient extends Application {
 	// ----------- EVENT HANDLER ----------------------------------
 
 	// text input
-	public override function onTextInput (text:String):Void
+	public override function onTextInput (window:Window, text:String):Void
 	{
 		if (is_connected) peoteTerminal.onTextInput(text);
 	}
 	
 	
 	// keyboard input
-	public override function onKeyDown (keyCode:KeyCode, modifier:KeyModifier):Void
+	public override function onKeyDown (window:Window, keyCode:KeyCode, modifier:KeyModifier):Void
 	{
 		if (is_connected) peoteTerminal.onKeyDown(keyCode, modifier);
 	}
@@ -163,35 +167,35 @@ class PeoteTelnetClient extends Application {
 	
 	
 	// screen and mouse
-	public override function onWindowResize (width:Int, height:Int):Void
+	public override function onWindowResize (window:Window, width:Int, height:Int):Void
 	{
-		//trace("onWindowResize:"+width+','+height);
-		this.width = width;
-		this.height = height;
+		trace("onWindowResize:"+ window.width+','+ window.height);
+		this.width = window.width;
+		this.height = window.height;
 		if (is_connected) peoteTerminal.onWindowResize(width, height);
 	}
 	
-	public override function onMouseMove (x:Float, y:Float):Void
+	public override function onMouseMove (window:Window, x:Float, y:Float):Void
 	{
 		//trace("onMouseMove: " + x + "," + y );
 		mouse_x = Std.int(x);
 		mouse_y = Std.int(y);
 	}
-	public override function onTouchMove (x:Float, y:Float, id:Int):Void
+	public override function onTouchMove (touch:Touch):Void
 	{
-		//trace("onTouchMove: " + x + "," + y );
-		mouse_x = Std.int(x);
-		mouse_y = Std.int(y);
+		trace("onTouchMove: " + touch.x + "," + touch.y );
+		mouse_x = Std.int(touch.x); //* window.width;
+		mouse_y = Std.int(touch.y);
 	}
-	public override function onMouseDown (x:Float, y:Float, button:Int):Void
+	public override function onMouseDown (window:Window, x:Float, y:Float, button:Int):Void
 	{	
 		//trace("onMouseDown: x=" + x + " y="+ y);
 	}
-	public override function onMouseUp (x:Float, y:Float, button:Int):Void
+	public override function onMouseUp (window:Window, x:Float, y:Float, button:Int):Void
 	{	
 		//trace("onmouseup: "+button+" x=" + x + " y="+ y);
 	}
-	public override function onMouseWheel (deltaX:Float, deltaY:Float):Void
+	public override function onMouseWheel (window:Window, deltaX:Float, deltaY:Float):Void
 	{	
 		//trace("onmousewheel: " + deltaX + ',' + deltaY );
 		peoteTerminal.onMouseWheel(deltaX, deltaY);	
