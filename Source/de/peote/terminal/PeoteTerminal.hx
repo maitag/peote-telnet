@@ -139,7 +139,13 @@ class PeoteTerminal
 	
 	public inline function sgr(params:Array<String>):Void // Select Graphic Rendition
 	{
-		//trace("SGR:",params);
+		#if debugansi trace("SGR:" + params); #end
+		for (i in 0...params.length)
+		{	var p:Int = Std.parseInt(params[i]);
+			if (p == 0) peoteDisplay.sgrReset();
+			if (p >= 30 && p <= 37) peoteDisplay.sgrFG(p-30);
+			if (p >= 40 && p <= 47) peoteDisplay.sgrBG(p-40);
+		}
 	}
 	public inline function cud(params:Array<String>):Void // Cursor Down
 	{

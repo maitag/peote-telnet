@@ -47,6 +47,12 @@ class PeoteDisplay
 	var font_size_x:Int = 10;
 	var font_size_y:Int = 16;
 	
+	var colors:Array<Int>;
+	var fg_color:Int;
+	var bg_color:Int;
+	var fg_color_default:Int = 0x70d800ff;
+	var bg_color_default:Int = 0x00000000;
+	
 	public var cursor_x:Int = 0;
 	public var cursor_y:Int = 0;
 	
@@ -76,6 +82,9 @@ class PeoteDisplay
 		this.max_size_x = max_size_x;
 		this.max_size_y = max_size_y;
 				
+		//             black,        red,      green,     yellow,       blue,    magenta,       cyan,      white
+		colors = [0x000000ff, 0xff5511ff, 0x55ff11ff, 0xfffa00ff, 0x2286ffff, 0xf0ee11ff, 0x11f0ffff, 0xfafafaff];
+		sgrReset();
 		
 		this.peoteView = new PeoteView(3, 10); // max_displaylists, max_programs (for all displaylists)
 		startTime = Timer.stamp();
@@ -92,7 +101,7 @@ class PeoteDisplay
 		}
 		
 		peoteView.setProgram(0);
-		peoteView.setImage(0, "assets/liberation_font_320x512_green.png", 320, 512);
+		peoteView.setImage(0, "assets/liberation_font_320x512_white.png", 320, 512);
 		//peoteView.setImage(0, "assets/peote_font_green.png", 512, 512);
 		peoteView.setDisplaylist( {
 			displaylist: 0,
@@ -263,6 +272,22 @@ class PeoteDisplay
 		for (n in 0...n ) buffer.push(new Array<Int>());
 		refresh();
 	}
+
+	// ---------- sgr colors ----------------
+	
+	public inline function sgrReset():Void
+	{
+		fg_color = fg_color_default;
+		bg_color = bg_color_default;
+	}
+	public inline function sgrFG(n:Int):Void
+	{
+		fg_color = colors[n];
+	}
+	public inline function sgrBG(n:Int):Void
+	{
+		bg_color = colors[n];
+	}
 	
 	// --------------------------------------------------------------------------------
 	// Display ------------------------------------------------------------------------
@@ -276,6 +301,7 @@ class PeoteDisplay
 			y: y * font_size_y - displaylist_y_offset,
 			w: font_size_x,
 			h: font_size_y,
+			rgba:fg_color,
 			program:0, image:0, tile:char
 		});
 		
@@ -331,12 +357,14 @@ class PeoteDisplay
 		this.width = width;
 		this.height = height;
 		
+		eraseDisplay();
+		
 		size_x = Math.floor(width / font_size_x);
 		size_y = Math.floor(height / font_size_y);
 		
 		trace("onWindoResize", size_x, size_y);
 		
-		// TODO: buggy!
+		// TODO: debug!
 		if (cursor_y >= size_y)
 		{
 			buffer_pos += cursor_y - size_y + 1;
