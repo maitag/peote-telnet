@@ -30,7 +30,6 @@ package;
 
 import lime.app.Application;
 import lime.graphics.RenderContext;
-import haxe.Timer;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.ui.Window;
@@ -48,25 +47,19 @@ import de.peote.view.PeoteView;
 import de.peote.socket.PeoteSocket;
 import de.peote.telnet.PeoteTelnet;
 import de.peote.terminal.PeoteTerminal;
+import de.peote.terminal.PeoteDisplay;
 
 
 class PeoteTelnetClient extends Application {
-	
-    var width: Int;
-    var height: Int;
-    var mouse_x: Int = 0;
-    var mouse_y: Int = 0;
-    var zoom: Int = 1;
-	
+		
 	var peoteSocket:PeoteSocket;
 	var is_connected:Bool = false;
 	
 	var peoteTelnet:PeoteTelnet;
 	
-	var peoteView:PeoteView;
 	var peoteTerminal:PeoteTerminal;
-	var startTime:Float;
-	
+	var peoteDisplay:PeoteDisplay;
+
 	var conf:Dynamic;
 		
 	public function new () { super (); }
@@ -89,17 +82,11 @@ class PeoteTelnetClient extends Application {
 				
 				window.enableTextEvents = true;
 				
-				width = window.width;
-				height = window.height;
-				
-				startTime = Timer.stamp();
-				
 				peoteSocket = new PeoteSocket( { 
 					onConnect: function(connected, msg) {
 						trace("onConnect:" + connected + " - " + msg);
 						is_connected = true;
-						peoteTerminal = new PeoteTerminal(peoteTelnet, peoteView, width, height, 256);
-						peoteTerminal.onWindowResize( width, height);
+						peoteTerminal = new PeoteTerminal(peoteTelnet, peoteDisplay);
 					},
 					onClose: function(msg) {
 						trace("onClose:" + msg);
@@ -111,9 +98,8 @@ class PeoteTelnetClient extends Application {
 					onData: this.onData
 				});
 				
-				peoteTelnet = new PeoteTelnet(peoteSocket);
-				peoteView = new PeoteView(3, 10); // max_displaylists, max_programs (for all displaylists)
-				
+				peoteDisplay = new PeoteDisplay(window.width, window.height);
+				peoteTelnet = new PeoteTelnet(peoteSocket, peoteDisplay.size_x, peoteDisplay.size_y);
 				
 				peoteSocket.connect(conf.server, conf.port);
 				
@@ -122,16 +108,19 @@ class PeoteTelnetClient extends Application {
 		}
 	}
 	#if js
-	public inline function onData(data:Uint8Array):Void
+	public inline function onData(s:String):Void
+	//public inline function onData(data:Uint8Array):Void
 	{
 		// TODO: optimize raw-socket data from swf-bridge ( see PeoteSocketBridge.hx )
 		//trace(data);
-		var bytes = new ByteArray();
-		for (i in 0...data.length)
-			bytes.writeByte( data[i] );
-		bytes.position = 0;
+		var data = new ByteArray();
+
+		//data.writeUTFBytes(s);
+		for (i in 0...s.length) data.writeByte( s.charCodeAt(i) );
 		
-		peoteTerminal.remoteData( bytes );
+		//for (i in 0...data.length) data.writeByte( data[i] );
+		
+		peoteTerminal.remoteData( data );
 	}
 	#else
 	public inline function onData(data:ByteArray):Void
@@ -143,7 +132,7 @@ class PeoteTelnetClient extends Application {
 	// ----------- Render Loop ------------------------------------
 	public override function render(renderer:Renderer):Void
 	{
-		peoteView.render(Timer.stamp() - startTime, width, height, mouse_x, mouse_y, zoom);
+		peoteDisplay.render(renderer);
 	}
 
 
@@ -170,22 +159,23 @@ class PeoteTelnetClient extends Application {
 	public override function onWindowResize (window:Window, width:Int, height:Int):Void
 	{
 		trace("onWindowResize:"+ window.width+','+ window.height);
-		this.width = window.width;
-		this.height = window.height;
-		if (is_connected) peoteTerminal.onWindowResize(width, height);
+		if (is_connected) {
+			peoteDisplay.resize(window.width, window.height);
+			peoteTelnet.resize(peoteDisplay.size_x, peoteDisplay.size_y);
+		}
 	}
 	
 	public override function onMouseMove (window:Window, x:Float, y:Float):Void
 	{
 		//trace("onMouseMove: " + x + "," + y );
-		mouse_x = Std.int(x);
-		mouse_y = Std.int(y);
+		peoteDisplay.mouse_x = Std.int(x);
+		peoteDisplay.mouse_y = Std.int(y);
 	}
 	public override function onTouchMove (touch:Touch):Void
 	{
 		trace("onTouchMove: " + touch.x + "," + touch.y );
-		mouse_x = Std.int(touch.x); //* window.width;
-		mouse_y = Std.int(touch.y);
+		peoteDisplay.mouse_x = Std.int(touch.x); //* window.width;
+		peoteDisplay.mouse_y = Std.int(touch.y);
 	}
 	public override function onMouseDown (window:Window, x:Float, y:Float, button:Int):Void
 	{	
@@ -198,7 +188,7 @@ class PeoteTelnetClient extends Application {
 	public override function onMouseWheel (window:Window, deltaX:Float, deltaY:Float):Void
 	{	
 		//trace("onmousewheel: " + deltaX + ',' + deltaY );
-		peoteTerminal.onMouseWheel(deltaX, deltaY);	
+		if (is_connected) peoteDisplay.onMouseWheel(deltaX, deltaY);	
 	}
 	
 	// end Event Handler

@@ -28,14 +28,18 @@
 
 package de.peote.terminal;
 
+import haxe.Timer;
+import lime.graphics.Renderer;
+
 import de.peote.view.PeoteView;
+import de.peote.view.displaylist.DType;
 
 class PeoteDisplay
 {
 	var peoteView:PeoteView;
 	
-	var size_x:Int = 256;
-	var size_y:Int = 128;
+	public var size_x:Int = 256;
+	public var size_y:Int = 128;
 
 	var max_size_x:Int;
 	var max_size_y:Int;
@@ -43,9 +47,10 @@ class PeoteDisplay
 	var font_size_x:Int = 10;
 	var font_size_y:Int = 16;
 	
-	var cursor_x:Int = 0;
-	var cursor_y:Int = 0;
+	public var cursor_x:Int = 0;
+	public var cursor_y:Int = 0;
 	
+	//var buffer:Array<Array<Int>>;
 	var buffer:Array<Array<Null<Int>>>;
 	var buffer_pos:Int = 0;
 	var max_buffer:Int;
@@ -56,17 +61,29 @@ class PeoteDisplay
 	var displaylist_y_offset:Int = 0;
 	var displaylist_y_scroll:Int = 0;
 	
-	public function new(peoteView:PeoteView, width:Int, height:Int, max_buffer:Int, max_size_x:Int=256, max_size_y:Int=256) 
+	var startTime:Float;
+    var width: Int;
+    var height: Int;
+    public var mouse_x: Int = 0;
+    public var mouse_y: Int = 0;
+    public var zoom: Int = 1;
+	
+	public function new(width:Int, height:Int, max_buffer:Int=300, max_size_x:Int=256, max_size_y:Int=256) 
 	{
-		this.peoteView = peoteView;
-		
-		this.size_x = Math.floor(width / font_size_x);
-		this.size_y = Math.floor(height / font_size_y);
-
+		this.width = width;
+		this.height = height;
 		this.max_buffer = max_buffer;
 		this.max_size_x = max_size_x;
 		this.max_size_y = max_size_y;
+				
 		
+		this.peoteView = new PeoteView(3, 10); // max_displaylists, max_programs (for all displaylists)
+		startTime = Timer.stamp();
+				
+
+		this.size_x = Math.floor(width / font_size_x);
+		this.size_y = Math.floor(height / font_size_y);
+
 		this.max_elements = max_size_x * max_size_y;
 		
 		buffer = new Array<Array<Null<Int>>>();
@@ -79,10 +96,11 @@ class PeoteDisplay
 		//peoteView.setImage(0, "assets/peote_font_green.png", 512, 512);
 		peoteView.setDisplaylist( {
 			displaylist: 0,
-			max_elements: this.max_elements, // for low-end devices better max_elements < 100 000
-			max_programs: 1,
-			buffer_segment_size: this.max_elements,
+			type:DType.SIMPLE | DType.RGBA,
+			elements: this.max_elements, // for low-end devices better max_elements < 100 000
 			renderBackground:true,
+			w:size_x * font_size_x,	
+			h:size_y * font_size_y,
 			r:0.05,g:0.07
 		});
 		
@@ -90,15 +108,20 @@ class PeoteDisplay
 		peoteView.setProgram(1, "assets/lyapunov_greencursor.frag");
 		peoteView.setDisplaylist( {
 			displaylist: 1,
-			max_elements: 10,
-			max_programs: 1,
-			buffer_segment_size: 10, 
+			type:DType.SIMPLE,
+			elements: 10,
 			z:1
 		});
 		
 		updateCursor();
 	}
 	
+	// ----------- Render Loop ------------------------------------
+	public inline function render(renderer:Renderer):Void
+	{
+		peoteView.render(Timer.stamp() - startTime, width, height, mouse_x, mouse_y, zoom);
+	}
+
 	public inline function printChar(char:Int):Void 
 	{
 		setChar(cursor_x, cursor_y, char);
@@ -128,7 +151,8 @@ class PeoteDisplay
 			updateCursor(); // TODO
 		}
 		else
-		{
+		{	
+			#if debugterminal trace("Scroll Display Up"); #end
 			scrollUp();
 		}
 	}
@@ -137,10 +161,6 @@ class PeoteDisplay
 	// ANSI ESC Sequences -------------------------------------------------------------
 	// --------------------------------------------------------------------------------
 	
-	public inline function sgr(params:Array<String>):Void // Select Graphic Rendition
-	{
-		//trace("SGR:",params);
-	}
 	public inline function cursorDown(n:Int):Void
 	{
 		cursor_y += n;
@@ -156,11 +176,13 @@ class PeoteDisplay
 	public inline function cursorForward(n:Int):Void
 	{
 		cursor_x += n;
+		if  (cursor_x >= size_x) cursor_x = size_x - 1;
 		updateCursor();
 	}
 	public inline function cursorBack(n:Int):Void
 	{
 		cursor_x -= n;
+		if  (cursor_x < 0) cursor_x = 0;
 		updateCursor();
 	}
 	public inline function cursorPosition(x:Int, y:Int):Void 
@@ -176,65 +198,55 @@ class PeoteDisplay
 		buffer[buffer_pos + cursor_y].splice(cursor_x,n); // TODO ???
 		refresh(); // TODO: refresh_line(); only?
 	}
-	public inline function eraseDisplay(n:Int):Void
+
+	// Todo: may save all to delete into buffer
+	public inline function eraseDisplay():Void
 	{
-		// Todo: may save all to delete into buffer
-		if (n == 0)
+		for (y in 0...size_y)
 		{
-			#if debugansi trace('Erase Display: clear from cursor to end of screen'); #end
-			for (y in cursor_y...size_y)
-			{
-				buffer[buffer_pos + y] = new Array<Int>();
-				for (x in 0...size_x) setChar(x,y,0);
-			}
+			buffer[buffer_pos + y] = new Array<Int>();
+			for (x in 0...size_x) setChar(x,y,0);
 		}
-		else if (n ==1)
-		{
-			#if debugansi trace('Erase Display: clear from cursor to beginning of the screen'); #end
-			for (y in 0...cursor_y)
-			{
-				buffer[buffer_pos + y] = new Array<Int>();
-				for (x in 0...size_x) setChar(x,y,0);
-			}
-		}
-		else if (n == 2)
-		{
-			#if debugansi trace('Erase Display: clear entire screen'); #end
-			for (y in 0...size_y)
-			{
-				buffer[buffer_pos + y] = new Array<Int>();
-				for (x in 0...size_x) setChar(x,y,0);
-			}
-		}
-		
 	}
-	public inline function eraseInLine(n:Int):Void 
+	public inline function eraseDisplayAfterCursor():Void
 	{
-		if (n == 0)
+		for (y in cursor_y...size_y)
 		{
-			#if debugansi trace('Erase in Line: clear from cursor to end of line'); #end
-			for (x in cursor_x...size_x)
-			{	setChar(x,cursor_y,0);
-				buffer[buffer_pos + cursor_y][x] = 0;
-			}
+			buffer[buffer_pos + y] = new Array<Int>();
+			for (x in 0...size_x) setChar(x,y,0);
 		}
-		else if (n == 1)
+	}
+	public inline function eraseDisplayBeforeCursor():Void
+	{
+		for (y in 0...cursor_y)
 		{
-			#if debugansi trace('Erase in Line: clear from cursor to beginning of line'); #end
-			for (x in 0...cursor_x)
-			{	setChar(x,cursor_y,0);
-				buffer[buffer_pos + cursor_y][x] = 0;
-			}
+			buffer[buffer_pos + y] = new Array<Int>();
+			for (x in 0...size_x) setChar(x,y,0);
 		}
-		else if (n == 2)
-		{
-			#if debugansi trace('Erase in Line: clear entire line'); #end
-			for (x in 0...size_x)
-			{	setChar(x,cursor_y,0);
-				buffer[buffer_pos + cursor_y][x] = 0;
-			}
+	}
+	
+	public inline function eraseLine():Void 
+	{
+		for (x in 0...size_x)
+		{	setChar(x,cursor_y,0);
+			buffer[buffer_pos + cursor_y][x] = 0;
 		}
-	}	
+	}
+	public inline function eraseLineAfterCursor():Void 
+	{
+		for (x in cursor_x...size_x)
+		{	setChar(x,cursor_y,0);
+			buffer[buffer_pos + cursor_y][x] = 0;
+		}
+	}
+	public inline function eraseLineBeforeCursor():Void 
+	{
+		for (x in 0...cursor_x)
+		{	setChar(x,cursor_y,0);
+			buffer[buffer_pos + cursor_y][x] = 0;
+		}
+	}
+	
 	public inline function insertLine(n:Int):Void
 	{
 		for ( n in 0...n ) 
@@ -309,16 +321,22 @@ class PeoteDisplay
 		}
 		
 	}
+	
 	// --------------------------------------------------------------------------------
-	// Events -------------------------------------------------------------------------
+	// resize display------------------------------------------------------------------
 	// --------------------------------------------------------------------------------
 	// TODO: recode element_offset thing
-	public inline function onResize (width:Int, height:Int):Void
+	public inline function resize (width:Int, height:Int):Void
 	{
-		// TODO: buggy!
+		this.width = width;
+		this.height = height;
+		
 		size_x = Math.floor(width / font_size_x);
 		size_y = Math.floor(height / font_size_y);
 		
+		trace("onWindoResize", size_x, size_y);
+		
+		// TODO: buggy!
 		if (cursor_y >= size_y)
 		{
 			buffer_pos += cursor_y - size_y + 1;
@@ -347,5 +365,14 @@ class PeoteDisplay
 		refresh();
 	}
 	
+	public inline function onMouseWheel(deltaX:Float, deltaY:Float):Void
+	{
+		// TODO
+		if ( deltaY>0 && displaylist_y_scroll - displaylist_y_offset < (max_size_y-size_y)*font_size_y) displaylist_y_scroll+=font_size_y;
+		else if (displaylist_y_scroll > displaylist_y_offset) displaylist_y_scroll -= font_size_y;
+		
+		peoteView.setDisplaylist( { displaylist: 0, yOffset: displaylist_y_scroll } );
+		updateCursor();
+	}	
 
 }
