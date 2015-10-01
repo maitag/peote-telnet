@@ -35,12 +35,11 @@ look into html5-test folder, how to get it run in webbrowser with flash-rawsocke
 ####Why another Terminal Emulation ?
 
 - use power of haxe-lime multiplatform code generation
-- build mud-clients ;)
+- building mud-clients ;)
 
 ####Todo
 
-- outsource code to display textarea into peote-view
 - more control commands (keyboard-input)
 - local echo switch
-- ansi-colors
+- ansi-background-colors
 - reconnect socket
