@@ -37,11 +37,13 @@ import lime.ui.Touch;
 import lime.graphics.Renderer;
 
 #if js
-import js.html.Uint8Array;
+
 #else
 import lime.Assets;
 #end
-import lime.utils.ByteArray;
+
+//import lime.utils.ByteArray;
+import haxe.io.Bytes;
 
 import de.peote.view.PeoteView;
 import de.peote.socket.PeoteSocket;
@@ -74,7 +76,7 @@ class PeoteTelnetClient extends Application {
 		req.send();
 		conf = haxe.Json.parse( regex.replace(req.responseText, "") );
 		#else
-		conf = haxe.Json.parse( regex.replace(Assets.getBytes("assets/config.conf").asString(), "") ); // TODO: problem with getText (.txt ??)
+		conf = haxe.Json.parse( regex.replace(Assets.getText("assets/config.conf"), "") ); // TODO: problem with getText (.txt ??)
 		#end
 		
 		switch (window.renderer.context) {
@@ -107,27 +109,11 @@ class PeoteTelnetClient extends Application {
 				trace("only opengl supported");
 		}
 	}
-	#if js
-	public inline function onData(s:String):Void
-	//public inline function onData(data:Uint8Array):Void
-	{
-		// TODO: optimize raw-socket data from swf-bridge ( see PeoteSocketBridge.hx )
-		//trace(data);
-		var data = new ByteArray();
-
-		//data.writeUTFBytes(s);
-		for (i in 0...s.length) data.writeByte( s.charCodeAt(i) );
-		
-		//for (i in 0...data.length) data.writeByte( data[i] );
-		
-		peoteTerminal.remoteData( data );
-	}
-	#else
-	public inline function onData(data:ByteArray):Void
+	
+	public inline function onData(data:Array<Int>):Void
 	{
 		peoteTerminal.remoteData( data );
 	}
-	#end
 	
 	// ----------- Render Loop ------------------------------------
 	public override function render(renderer:Renderer):Void
@@ -142,14 +128,14 @@ class PeoteTelnetClient extends Application {
 
 	// text input
 	public override function onTextInput (window:Window, text:String):Void
-	{
+	{	trace("onTextInput");
 		if (is_connected) peoteTerminal.onTextInput(text);
 	}
 	
 	
 	// keyboard input
 	public override function onKeyDown (window:Window, keyCode:KeyCode, modifier:KeyModifier):Void
-	{
+	{	trace("onKeyDown");
 		if (is_connected) peoteTerminal.onKeyDown(keyCode, modifier);
 	}
 	//public override function onKeyUp (keyCode:KeyCode, modifier:KeyModifier):Void {}

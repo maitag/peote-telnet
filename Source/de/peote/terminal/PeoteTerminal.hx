@@ -28,11 +28,13 @@
 
 package de.peote.terminal;
 
+import haxe.io.BytesData;
 import haxe.io.StringInput;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.Assets;
-import lime.utils.ByteArray;
+//import lime.utils.ByteArray;
+import haxe.io.Bytes;
 
 import de.peote.telnet.PeoteTelnet;
 import de.peote.view.PeoteView;
@@ -44,7 +46,7 @@ class PeoteTerminal
 	var peoteDisplay:PeoteDisplay;
 	var ansiParser:AnsiParser;
 		
-	var keyboardMap:Map<String, Map<Int, Array<String>> >;
+	//var keyboardMap:Map<String, Map<Int, Array<String>> >;
 	
 	public function new(peoteTelnet:PeoteTelnet, peoteDisplay:PeoteDisplay)
 	{
@@ -57,36 +59,27 @@ class PeoteTerminal
 	public inline function onKeyDown(keyCode:KeyCode, modifier:KeyModifier):Void 
 	{
 		switch(keyCode) {
-			case KeyCode.ESCAPE:	peoteTelnet.writeByte(27);	// TODO: windows problem
-			case KeyCode.LEFT:		peoteTelnet.writeByte(27); peoteTelnet.writeByte(91); peoteTelnet.writeByte('D'.charCodeAt(0));
-			case KeyCode.RIGHT:		peoteTelnet.writeByte(27); peoteTelnet.writeByte(91); peoteTelnet.writeByte('C'.charCodeAt(0));	
-			case KeyCode.UP:		peoteTelnet.writeByte(27); peoteTelnet.writeByte(91); peoteTelnet.writeByte('A'.charCodeAt(0));	
-			case KeyCode.DOWN:		peoteTelnet.writeByte(27); peoteTelnet.writeByte(91); peoteTelnet.writeByte('B'.charCodeAt(0));
-			case KeyCode.BACKSPACE:	peoteTelnet.writeByte(TermCode.BS); 
-			case KeyCode.DELETE :	peoteTelnet.writeByte(27); peoteTelnet.writeByte(91); peoteTelnet.writeByte('C'.charCodeAt(0)); peoteTelnet.writeByte(TermCode.BS); 
-			case KeyCode.RETURN :	peoteTelnet.writeByte(TermCode.CR);					
-			case KeyCode.NUMPAD_ENTER :	peoteTelnet.writeByte(TermCode.CR);					
+			case KeyCode.ESCAPE		:peoteTelnet.writeByte(27);	// TODO: windows problem
+			case KeyCode.LEFT		:peoteTelnet.writeByte(27); peoteTelnet.writeByte(91); peoteTelnet.writeByte('D'.charCodeAt(0));
+			case KeyCode.RIGHT		:peoteTelnet.writeByte(27); peoteTelnet.writeByte(91); peoteTelnet.writeByte('C'.charCodeAt(0));	
+			case KeyCode.UP			:peoteTelnet.writeByte(27); peoteTelnet.writeByte(91); peoteTelnet.writeByte('A'.charCodeAt(0));	
+			case KeyCode.DOWN		:peoteTelnet.writeByte(27); peoteTelnet.writeByte(91); peoteTelnet.writeByte('B'.charCodeAt(0));
+			case KeyCode.BACKSPACE	:peoteTelnet.writeByte(TermCode.BS); 
+			case KeyCode.DELETE		:peoteTelnet.writeByte(27); peoteTelnet.writeByte(91); peoteTelnet.writeByte('C'.charCodeAt(0)); peoteTelnet.writeByte(TermCode.BS); 
+			case KeyCode.RETURN		:peoteTelnet.writeByte(TermCode.CR);
+			case KeyCode.NUMPAD_ENTER:peoteTelnet.writeByte(TermCode.CR);
+			case KeyCode.TAB		:peoteTelnet.writeByte(TermCode.HT); // TODO: dont work in html webbrowser (Firefox)
 			
 			default:
-			#if js
-				var char:Int = KeyboardMap.toCharCode(keyCode, modifier);
-				if (char < 256) peoteTelnet.writeByte(char);
-			#end
 		}
 	}
 	
 	public inline function onTextInput(text:String):Void 
 	{
-		#if js
-			trace("textinput: (" + text + ")");
-		#else
-			var ba:ByteArray = new ByteArray();
-			ba.writeUTFBytes( text ); //ba.writeUTF( text );
-			if (text != "") peoteTelnet.writeBytes( ba );
-		#end
+		peoteTelnet.writeBytes( Bytes.ofString(text) );
 	}
 	
-	public inline function remoteData(bytes:ByteArray):Void 
+	public inline function remoteData(bytes:Array<Int>):Void 
 	{
 		peoteTelnet.parseTelnetData( bytes, printChar );
 	}

@@ -4,8 +4,8 @@
 	<meta title="PeoteTelnetClient" package="de.peote.telnet" version="0.1.0" company="Sylvio Sell - maitag" />
 	<app main="PeoteTelnetClient" path="Export" file="PeoteTelnetClient" />
 	
-	<window fps="60" width="800" height="600" vsync="true" antialiasing="4" resizable="true" hardware="true" allow-shaders="true" require-shaders="true" depth-buffer="true" stencil-buffer="false" />
-	<window if="html5" fps="30" width="0" height="0" />
+	<window fps="60" width="800" height="600" vsync="true" resizable="true" hardware="true" allow-shaders="true" require-shaders="true" depth-buffer="true" stencil-buffer="false" />
+	<window if="html5" fps="60" width="0" height="0" />
 	
 	<source path="Source" />
 	<!-- external haxe libs -->
@@ -15,12 +15,23 @@
 	<haxelib name="lime" />
 	<haxelib name="format" />
 	
-	<assets path="Assets" rename="assets" exclude="lime.svg" />
-	<icon path="Assets/lime.svg" />
+	<haxedef name="peote_fillstride" />
 	
-	<!--<haxedef name="debugtelnet" />
+	<!-- shader float precision for html5 and raspberry pi and android -->
+	<haxedef name="peote_vert_medium_precision" if="html5||rpi||android" />
+	<haxedef name="peote_frag_medium_precision" if="html5||rpi||android" />
+
+	<haxeflag name="-dce" value="full" />
+	
+	<!-- <haxedef name="no-traces" /> -->
+	<haxedef name="debugkeyboard" />
+	<haxedef name="debugansi" />
+	<haxedef name="debugtelnet" />
 	<haxedef name="debugterminal" />
 	<haxedef name="debugansi" />
-	<haxedef name="debugkeyboard" />-->
+	<haxedef name="debugkeyboard" />
+	
+	<assets path="Assets" rename="assets" exclude="lime.svg" />
+	<icon path="Assets/lime.svg" />
 	
 </project>

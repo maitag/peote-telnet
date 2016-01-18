@@ -12,17 +12,22 @@
     <movie minorVersion="0" />
     <movie platform="Lime" />
     <movie background="#000000" />
-    <movie preferredSDK="Haxe 3.1.3;3.1.3;" />
   </output>
   <!-- Other classes to be compiled into your SWF -->
+  <classpaths>
+    <class path="Source" />
+    <class path="..\PeoteView\Source" />
+    <class path="..\PeoteSocket\Source" />
+    <class path="Export\windows\cpp\haxe" />
+  </classpaths>
   <!-- Build options -->
   <build>
-    <option directives="lime=2.4.2&#xA;format=3.1.2&#xA;tools=2.4.2&#xA;no-compilation&#xA;lime-native&#xA;windows&#xA;desktop" />
+    <option directives="lime=2.8.3&#xA;format=3.2.1&#xA;no-traces&#xA;tools=2.8.3&#xA;debugkeyboard&#xA;no-compilation&#xA;lime-native&#xA;peote_fillstride&#xA;debugterminal&#xA;debugansi&#xA;debugtelnet&#xA;windows&#xA;desktop&#xA;display" />
     <option flashStrict="False" />
     <option noInlineOnDebug="False" />
     <option mainClass="ApplicationMain" />
     <option enabledebug="False" />
-    <option additional="#--macro keep(&quot;PeoteTelnetClient&quot;)" />
+    <option additional="-dce full&#xA;#--macro keep(&quot;PeoteTelnetClient&quot;)" />
   </build>
   <!-- haxelib libraries -->
   <haxelib>
