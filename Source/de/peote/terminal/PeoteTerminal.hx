@@ -28,12 +28,8 @@
 
 package de.peote.terminal;
 
-import haxe.io.BytesData;
-import haxe.io.StringInput;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
-import lime.Assets;
-//import lime.utils.ByteArray;
 import haxe.io.Bytes;
 
 import de.peote.telnet.PeoteTelnet;
@@ -68,7 +64,7 @@ class PeoteTerminal
 			case KeyCode.DELETE		:peoteTelnet.writeByte(27); peoteTelnet.writeByte(91); peoteTelnet.writeByte('C'.charCodeAt(0)); peoteTelnet.writeByte(TermCode.BS); 
 			case KeyCode.RETURN		:peoteTelnet.writeByte(TermCode.CR);
 			case KeyCode.NUMPAD_ENTER:peoteTelnet.writeByte(TermCode.CR);
-			case KeyCode.TAB		:peoteTelnet.writeByte(TermCode.HT); // TODO: dont work in html webbrowser (Firefox)
+			case KeyCode.TAB		:trace("TAB PRESSED"); peoteTelnet.writeByte(TermCode.HT); // TODO: dont work right sometimes in html webbrowser (Firefox)
 			
 			default:
 		}
@@ -79,7 +75,7 @@ class PeoteTerminal
 		peoteTelnet.writeBytes( Bytes.ofString(text) );
 	}
 	
-	public inline function remoteData(bytes:Array<Int>):Void 
+	public inline function remoteData(bytes:Bytes):Void 
 	{
 		peoteTelnet.parseTelnetData( bytes, printChar );
 	}

@@ -20,8 +20,6 @@ ApplicationMain.create = function() {
 	var types = [];
 	urls.push("assets/config.conf");
 	types.push("TEXT");
-	urls.push("assets/keyboard.conf");
-	types.push("TEXT");
 	urls.push("assets/liberation_font_320x512.png");
 	types.push("IMAGE");
 	urls.push("assets/liberation_font_320x512_green.png");
@@ -45,7 +43,7 @@ ApplicationMain.create = function() {
 	ApplicationMain.preloader.load(urls,types);
 };
 ApplicationMain.main = function() {
-	ApplicationMain.config = { build : "182", company : "Sylvio Sell - maitag", file : "PeoteTelnetClient", fps : 60, name : "PeoteTelnetClient", orientation : "", packageName : "de.peote.telnet", version : "0.1.0", windows : [{ antialiasing : 0, background : 16777215, borderless : false, depthBuffer : true, display : 0, fullscreen : false, hardware : true, height : 0, parameters : "{}", resizable : true, stencilBuffer : false, title : "PeoteTelnetClient", vsync : true, width : 0, x : null, y : null}]};
+	ApplicationMain.config = { build : "198", company : "Sylvio Sell - maitag", file : "PeoteTelnetClient", fps : 60, name : "PeoteTelnetClient", orientation : "", packageName : "de.peote.telnet", version : "0.1.0", windows : [{ antialiasing : 0, background : 16777215, borderless : false, depthBuffer : true, display : 0, fullscreen : false, hardware : true, height : 0, parameters : "{}", resizable : true, stencilBuffer : false, title : "PeoteTelnetClient", vsync : true, width : 0, x : null, y : null}]};
 };
 ApplicationMain.start = function() {
 	var result = ApplicationMain.app.exec();
@@ -936,7 +934,14 @@ PeoteTelnetClient.prototype = $extend(lime_app_Application.prototype,{
 		}
 	}
 	,onData: function(data) {
-		this.peoteTerminal.remoteData(data);
+		var bytes = haxe_io_Bytes.ofData(new ArrayBuffer(data.length));
+		var _g1 = 0;
+		var _g = data.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			bytes.b[i] = data[i] & 255;
+		}
+		this.peoteTerminal.remoteData(bytes);
 	}
 	,render: function(renderer) {
 		this.peoteDisplay.render(renderer);
@@ -1018,23 +1023,30 @@ de_peote_telnet_PeoteTelnet.prototype = {
 		this.peoteSocket.flush();
 	}
 	,writeBytes: function(bytes) {
-		var b = [];
+		this.peoteSocket.writeBytes((function($this) {
+			var $r;
+			var _g = [];
+			{
+				var _g2 = 0;
+				var _g1 = bytes.length;
+				while(_g2 < _g1) {
+					var i = _g2++;
+					_g.push(bytes.b[i]);
+				}
+			}
+			$r = _g;
+			return $r;
+		}(this)));
+		this.peoteSocket.flush();
+	}
+	,parseTelnetData: function(bytes,remoteInput) {
 		var _g1 = 0;
 		var _g = bytes.length;
 		while(_g1 < _g) {
 			var i = _g1++;
-			b.push(bytes.b[i]);
-		}
-		this.peoteSocket.writeBytes(b);
-		this.peoteSocket.flush();
-	}
-	,parseTelnetData: function(myBA,remoteInput) {
-		var _g = 0;
-		while(_g < myBA.length) {
-			var b = myBA[_g];
-			++_g;
-			var _g1 = this.state;
-			switch(_g1) {
+			var b = bytes.b[i];
+			var _g2 = this.state;
+			switch(_g2) {
 			case 0:
 				if(b == de_peote_telnet_PeoteTelnet.IAC) {
 					this.state = 1;
@@ -1613,6 +1625,9 @@ de_peote_terminal_PeoteTerminal.prototype = {
 			break;
 		case 1073741912:
 			this.peoteTelnet.writeByte(de_peote_terminal__$TermCode_TermCode_$Impl_$.CR);
+			break;
+		case 9:
+			this.peoteTelnet.writeByte(de_peote_terminal__$TermCode_TermCode_$Impl_$.HT);
 			break;
 		default:
 		}
@@ -5928,6 +5943,7 @@ de_peote_terminal_AnsiParser.Off = 0;
 de_peote_terminal_AnsiParser.Start = 1;
 de_peote_terminal_AnsiParser.Sequence = 2;
 de_peote_terminal__$TermCode_TermCode_$Impl_$.BS = 8;
+de_peote_terminal__$TermCode_TermCode_$Impl_$.HT = 9;
 de_peote_terminal__$TermCode_TermCode_$Impl_$.CR = 13;
 de_peote_view_Buffer.VERTEX_COUNT = 6;
 de_peote_view_PeoteView.elementDefaults = { displaylist : 0, program : null, image : null, tile : null, x : 0, y : 0, w : 100, h : 100, z : 0, rgba : -1, rotation : 0, pivotX : 0, pivotY : 0};

@@ -28,6 +28,7 @@
 
 package;
 
+import haxe.io.BytesData;
 import lime.app.Application;
 import lime.graphics.RenderContext;
 import lime.ui.KeyCode;
@@ -110,10 +111,19 @@ class PeoteTelnetClient extends Application {
 		}
 	}
 	
-	public inline function onData(data:Array<Int>):Void
-	{
-		peoteTerminal.remoteData( data );
+	#if js
+	public inline function onData(data:Array<Int>):Void {
+		var bytes:Bytes = Bytes.ofData(new BytesData(data.length));
+		for (i in 0...data.length) bytes.set(i, data[i]);
+		
+		peoteTerminal.remoteData( bytes );
 	}
+	#else
+	public inline function onData(bytes:Bytes):Void
+	{
+		peoteTerminal.remoteData( bytes );
+	}
+	#end
 	
 	// ----------- Render Loop ------------------------------------
 	public override function render(renderer:Renderer):Void
