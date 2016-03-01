@@ -28,7 +28,6 @@
 
 package;
 
-import haxe.io.BytesData;
 import lime.app.Application;
 import lime.graphics.RenderContext;
 import lime.ui.KeyCode;
@@ -36,6 +35,9 @@ import lime.ui.KeyModifier;
 import lime.ui.Window;
 import lime.ui.Touch;
 import lime.graphics.Renderer;
+
+import de.peote.io.PeoteBytes;
+import de.peote.io.PeoteBytesInput;
 
 #if js
 
@@ -98,7 +100,7 @@ class PeoteTelnetClient extends Application {
 					onError: function(msg) {
 						trace("onError:"+msg);
 					},
-					onData: this.onData
+					onData: onData
 				});
 				
 				peoteDisplay = new PeoteDisplay(window.width, window.height);
@@ -111,19 +113,11 @@ class PeoteTelnetClient extends Application {
 		}
 	}
 	
-	#if js
-	public inline function onData(data:Array<Int>):Void {
-		var bytes:Bytes = Bytes.ofData(new BytesData(data.length));
-		for (i in 0...data.length) bytes.set(i, data[i]);
-		
-		peoteTerminal.remoteData( bytes );
-	}
-	#else
-	public inline function onData(bytes:Bytes):Void
+	public inline function onData(peoteBytes:PeoteBytes):Void
 	{
-		peoteTerminal.remoteData( bytes );
+		var input:PeoteBytesInput = new PeoteBytesInput(peoteBytes);
+		peoteTerminal.remoteData( input );
 	}
-	#end
 	
 	// ----------- Render Loop ------------------------------------
 	public override function render(renderer:Renderer):Void

@@ -43,7 +43,7 @@ ApplicationMain.create = function() {
 	ApplicationMain.preloader.load(urls,types);
 };
 ApplicationMain.main = function() {
-	ApplicationMain.config = { build : "198", company : "Sylvio Sell - maitag", file : "PeoteTelnetClient", fps : 60, name : "PeoteTelnetClient", orientation : "", packageName : "de.peote.telnet", version : "0.1.0", windows : [{ antialiasing : 0, background : 16777215, borderless : false, depthBuffer : true, display : 0, fullscreen : false, hardware : true, height : 0, parameters : "{}", resizable : true, stencilBuffer : false, title : "PeoteTelnetClient", vsync : true, width : 0, x : null, y : null}]};
+	ApplicationMain.config = { build : "200", company : "Sylvio Sell - maitag", file : "PeoteTelnetClient", fps : 60, name : "PeoteTelnetClient", orientation : "", packageName : "de.peote.telnet", version : "0.2.0", windows : [{ antialiasing : 0, background : 16777215, borderless : false, depthBuffer : true, display : 0, fullscreen : false, hardware : true, height : 0, parameters : "{}", resizable : true, stencilBuffer : false, title : "PeoteTelnetClient", vsync : true, width : 0, x : null, y : null}]};
 };
 ApplicationMain.start = function() {
 	var result = ApplicationMain.app.exec();
@@ -933,15 +933,9 @@ PeoteTelnetClient.prototype = $extend(lime_app_Application.prototype,{
 			}
 		}
 	}
-	,onData: function(data) {
-		var bytes = haxe_io_Bytes.ofData(new ArrayBuffer(data.length));
-		var _g1 = 0;
-		var _g = data.length;
-		while(_g1 < _g) {
-			var i = _g1++;
-			bytes.b[i] = data[i] & 255;
-		}
-		this.peoteTerminal.remoteData(bytes);
+	,onData: function(peoteBytes) {
+		var input = new de_peote_io_js_PeoteBytesInput(peoteBytes);
+		this.peoteTerminal.remoteData(input);
 	}
 	,render: function(renderer) {
 		this.peoteDisplay.render(renderer);
@@ -1007,6 +1001,72 @@ StringTools.replace = function(s,sub,by) {
 StringTools.fastCodeAt = function(s,index) {
 	return s.charCodeAt(index);
 };
+var de_peote_io_js_PeoteBytesInput = $hx_exports.PeoteBytesInput = function(bytes) {
+	this.position = 0;
+	this.length = 0;
+	this.bytes = bytes;
+	this.length = bytes.length;
+};
+de_peote_io_js_PeoteBytesInput.__name__ = true;
+de_peote_io_js_PeoteBytesInput.main = function() {
+};
+de_peote_io_js_PeoteBytesInput.prototype = {
+	readByte: function() {
+		return this.bytes[this.position++];
+	}
+	,readInt16: function() {
+		this.position += 2;
+		return this.bytes[this.position - 1] << 8 | this.bytes[this.position - 2];
+	}
+	,readInt32: function() {
+		this.position += 4;
+		return this.bytes[this.position - 1] << 24 | this.bytes[this.position - 2] << 16 | this.bytes[this.position - 3] << 8 | this.bytes[this.position - 4];
+	}
+	,readFloat: function() {
+		var b = haxe_io_Bytes.alloc(4);
+		b.setInt32(0,(function($this) {
+			var $r;
+			$this.position += 4;
+			$r = $this.bytes[$this.position - 1] << 24 | $this.bytes[$this.position - 2] << 16 | $this.bytes[$this.position - 3] << 8 | $this.bytes[$this.position - 4];
+			return $r;
+		}(this)));
+		return b.getFloat(0);
+	}
+	,readDouble: function() {
+		var b = haxe_io_Bytes.alloc(8);
+		b.setInt32(0,(function($this) {
+			var $r;
+			$this.position += 4;
+			$r = $this.bytes[$this.position - 1] << 24 | $this.bytes[$this.position - 2] << 16 | $this.bytes[$this.position - 3] << 8 | $this.bytes[$this.position - 4];
+			return $r;
+		}(this)));
+		b.setInt32(4,(function($this) {
+			var $r;
+			$this.position += 4;
+			$r = $this.bytes[$this.position - 1] << 24 | $this.bytes[$this.position - 2] << 16 | $this.bytes[$this.position - 3] << 8 | $this.bytes[$this.position - 4];
+			return $r;
+		}(this)));
+		return b.getDouble(0);
+	}
+	,readString: function() {
+		var len;
+		this.position += 2;
+		len = this.bytes[this.position - 1] << 8 | this.bytes[this.position - 2];
+		var b = haxe_io_Bytes.alloc(len * 4);
+		var _g = 0;
+		while(_g < len) {
+			var i = _g++;
+			b.setInt32(i * 4,(function($this) {
+				var $r;
+				$this.position += 4;
+				$r = $this.bytes[$this.position - 1] << 24 | $this.bytes[$this.position - 2] << 16 | $this.bytes[$this.position - 3] << 8 | $this.bytes[$this.position - 4];
+				return $r;
+			}(this)));
+		}
+		return b.getString(0,len);
+	}
+	,__class__: de_peote_io_js_PeoteBytesInput
+};
 var de_peote_telnet_PeoteTelnet = function(peoteSocket,width,height) {
 	if(height == null) height = 46;
 	if(width == null) width = 107;
@@ -1039,12 +1099,12 @@ de_peote_telnet_PeoteTelnet.prototype = {
 		}(this)));
 		this.peoteSocket.flush();
 	}
-	,parseTelnetData: function(bytes,remoteInput) {
+	,parseTelnetData: function(input,remoteInput) {
 		var _g1 = 0;
-		var _g = bytes.length;
+		var _g = input.length;
 		while(_g1 < _g) {
 			var i = _g1++;
-			var b = bytes.b[i];
+			var b = input.bytes[input.position++];
 			var _g2 = this.state;
 			switch(_g2) {
 			case 0:
@@ -1632,8 +1692,8 @@ de_peote_terminal_PeoteTerminal.prototype = {
 		default:
 		}
 	}
-	,remoteData: function(bytes) {
-		this.peoteTelnet.parseTelnetData(bytes,$bind(this,this.printChar));
+	,remoteData: function(input) {
+		this.peoteTelnet.parseTelnetData(input,$bind(this,this.printChar));
 	}
 	,printChar: function($char) {
 		if(this.ansiParser.mode != de_peote_terminal_AnsiParser.Off) this.ansiParser.parsing($char); else switch($char) {
@@ -3407,6 +3467,9 @@ var haxe_io_Bytes = function(data) {
 	data.bytes = this.b;
 };
 haxe_io_Bytes.__name__ = true;
+haxe_io_Bytes.alloc = function(length) {
+	return new haxe_io_Bytes(new ArrayBuffer(length));
+};
 haxe_io_Bytes.ofString = function(s) {
 	var a = [];
 	var i = 0;
@@ -3435,7 +3498,44 @@ haxe_io_Bytes.ofData = function(b) {
 	return new haxe_io_Bytes(b);
 };
 haxe_io_Bytes.prototype = {
-	__class__: haxe_io_Bytes
+	getDouble: function(pos) {
+		if(this.data == null) this.data = new DataView(this.b.buffer,this.b.byteOffset,this.b.byteLength);
+		return this.data.getFloat64(pos,true);
+	}
+	,getFloat: function(pos) {
+		if(this.data == null) this.data = new DataView(this.b.buffer,this.b.byteOffset,this.b.byteLength);
+		return this.data.getFloat32(pos,true);
+	}
+	,setInt32: function(pos,v) {
+		if(this.data == null) this.data = new DataView(this.b.buffer,this.b.byteOffset,this.b.byteLength);
+		this.data.setInt32(pos,v,true);
+	}
+	,getString: function(pos,len) {
+		if(pos < 0 || len < 0 || pos + len > this.length) throw new js__$Boot_HaxeError(haxe_io_Error.OutsideBounds);
+		var s = "";
+		var b = this.b;
+		var fcc = String.fromCharCode;
+		var i = pos;
+		var max = pos + len;
+		while(i < max) {
+			var c = b[i++];
+			if(c < 128) {
+				if(c == 0) break;
+				s += fcc(c);
+			} else if(c < 224) s += fcc((c & 63) << 6 | b[i++] & 127); else if(c < 240) {
+				var c2 = b[i++];
+				s += fcc((c & 31) << 12 | (c2 & 127) << 6 | b[i++] & 127);
+			} else {
+				var c21 = b[i++];
+				var c3 = b[i++];
+				var u = (c & 15) << 18 | (c21 & 127) << 12 | (c3 & 127) << 6 | b[i++] & 127;
+				s += fcc((u >> 10) + 55232);
+				s += fcc(u & 1023 | 56320);
+			}
+		}
+		return s;
+	}
+	,__class__: haxe_io_Bytes
 };
 var haxe_io_Eof = function() { };
 haxe_io_Eof.__name__ = true;
@@ -4071,7 +4171,13 @@ lime__$backend_html5_HTML5Application.prototype = {
 			var keyCode = this.convertKeyCode(event.keyCode != null?event.keyCode:event.which);
 			var modifier;
 			modifier = (event.shiftKey?3:0) | (event.ctrlKey?192:0) | (event.altKey?768:0) | (event.metaKey?3072:0);
-			if(event.type == "keydown") this.parent.windows[0].onKeyDown.dispatch(keyCode,modifier); else this.parent.windows[0].onKeyUp.dispatch(keyCode,modifier);
+			if(event.type == "keydown") {
+				this.parent.windows[0].onKeyDown.dispatch(keyCode,modifier);
+				if(this.parent.windows[0].onKeyDown.canceled) event.preventDefault();
+			} else {
+				this.parent.windows[0].onKeyUp.dispatch(keyCode,modifier);
+				if(this.parent.windows[0].onKeyUp.canceled) event.preventDefault();
+			}
 		}
 	}
 	,handleWindowEvent: function(event) {
@@ -5829,6 +5935,8 @@ var lime_ui_Window = function(config) {
 		if(Object.prototype.hasOwnProperty.call(config,"x")) this.__x = config.x;
 		if(Object.prototype.hasOwnProperty.call(config,"y")) this.__y = config.y;
 		if(Object.prototype.hasOwnProperty.call(config,"fullscreen")) this.__fullscreen = config.fullscreen;
+		if(Object.prototype.hasOwnProperty.call(config,"borderless")) this.__borderless = config.borderless;
+		if(Object.prototype.hasOwnProperty.call(config,"resizable")) this.__resizable = config.resizable;
 		if(Object.prototype.hasOwnProperty.call(config,"title")) this.__title = config.title;
 	}
 	this.backend = new lime__$backend_html5_HTML5Window(this);
@@ -5865,6 +5973,10 @@ var lime_utils_Bytes = function(length,bytesData) {
 	haxe_io_Bytes.call(this,bytesData);
 };
 lime_utils_Bytes.__name__ = true;
+lime_utils_Bytes.alloc = function(length) {
+	var bytes = haxe_io_Bytes.alloc(length);
+	return new lime_utils_Bytes(bytes.length,bytes.b.bufferValue);
+};
 lime_utils_Bytes.ofData = function(b) {
 	var bytes = haxe_io_Bytes.ofData(b);
 	return new lime_utils_Bytes(bytes.length,bytes.b.bufferValue);

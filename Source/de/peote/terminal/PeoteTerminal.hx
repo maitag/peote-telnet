@@ -28,6 +28,8 @@
 
 package de.peote.terminal;
 
+import de.peote.io.PeoteBytesInput;
+import de.peote.io.PeoteBytes;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import haxe.io.Bytes;
@@ -75,9 +77,9 @@ class PeoteTerminal
 		peoteTelnet.writeBytes( Bytes.ofString(text) );
 	}
 	
-	public inline function remoteData(bytes:Bytes):Void 
+	public inline function remoteData(input:PeoteBytesInput):Void 
 	{
-		peoteTelnet.parseTelnetData( bytes, printChar );
+		peoteTelnet.parseTelnetData( input, printChar );
 	}
 
 	public inline function printChar(char:Int):Void 
