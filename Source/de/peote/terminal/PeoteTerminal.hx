@@ -57,16 +57,26 @@ class PeoteTerminal
 	public inline function onKeyDown(keyCode:KeyCode, modifier:KeyModifier):Void 
 	{
 		switch(keyCode) {
-			case KeyCode.ESCAPE		:peoteTelnet.writeByte(27);	// TODO: windows problem
+			case KeyCode.ESCAPE		:peoteTelnet.writeByte(27);
+			#if debugkeyboard trace("ESCAPE"); #end	// TODO: windows problem
 			case KeyCode.LEFT		:peoteTelnet.writeByte(27); peoteTelnet.writeByte(91); peoteTelnet.writeByte('D'.charCodeAt(0));
+			#if debugkeyboard trace("LEFT"); #end
 			case KeyCode.RIGHT		:peoteTelnet.writeByte(27); peoteTelnet.writeByte(91); peoteTelnet.writeByte('C'.charCodeAt(0));	
+			#if debugkeyboard trace("RIGHT"); #end
 			case KeyCode.UP			:peoteTelnet.writeByte(27); peoteTelnet.writeByte(91); peoteTelnet.writeByte('A'.charCodeAt(0));	
+			#if debugkeyboard trace("UP"); #end
 			case KeyCode.DOWN		:peoteTelnet.writeByte(27); peoteTelnet.writeByte(91); peoteTelnet.writeByte('B'.charCodeAt(0));
+			#if debugkeyboard trace("DOWN"); #end
 			case KeyCode.BACKSPACE	:peoteTelnet.writeByte(TermCode.BS); 
+			#if debugkeyboard trace("BACKSPACE"); #end
 			case KeyCode.DELETE		:peoteTelnet.writeByte(27); peoteTelnet.writeByte(91); peoteTelnet.writeByte('C'.charCodeAt(0)); peoteTelnet.writeByte(TermCode.BS); 
+			#if debugkeyboard trace("DELETE"); #end
 			case KeyCode.RETURN		:peoteTelnet.writeByte(TermCode.CR);
+			#if debugkeyboard trace("RETURN"); #end
 			case KeyCode.NUMPAD_ENTER:peoteTelnet.writeByte(TermCode.CR);
-			case KeyCode.TAB		:trace("TAB PRESSED"); peoteTelnet.writeByte(TermCode.HT); // TODO: dont work right sometimes in html webbrowser (Firefox)
+			#if debugkeyboard trace("NUMPAD_ENTER"); #end
+			case KeyCode.TAB		:peoteTelnet.writeByte(TermCode.HT); // TODO: dont work right sometimes in html webbrowser (Firefox)
+			#if debugkeyboard trace("TAB"); #end
 			
 			default:
 		}
@@ -74,6 +84,7 @@ class PeoteTerminal
 	
 	public inline function onTextInput(text:String):Void 
 	{
+		#if debugkeyboard trace("text"); #end
 		peoteTelnet.writeBytes( Bytes.ofString(text) );
 	}
 	
@@ -130,12 +141,21 @@ class PeoteTerminal
 	
 	public inline function sgr(params:Array<String>):Void // Select Graphic Rendition
 	{
-		#if debugansi trace("SGR:" + params); #end
 		for (i in 0...params.length)
 		{	var p:Int = Std.parseInt(params[i]);
-			if (p == 0) peoteDisplay.sgrReset();
-			if (p >= 30 && p <= 37) peoteDisplay.sgrFG(p-30);
-			if (p >= 40 && p <= 47) peoteDisplay.sgrBG(p-40);
+			if (p == 0) {
+				peoteDisplay.sgrReset();
+				#if debugansi trace("SGR: RESET"); #end
+			}
+			else if (p >= 30 && p <= 37) {
+				peoteDisplay.sgrFG(p - 30);
+				#if debugansi trace("SGR: FG COLOR to " + (p - 30)); #end
+			}
+			else if (p >= 40 && p <= 47) {
+				peoteDisplay.sgrBG(p - 40);
+				#if debugansi trace("SGR: BG COLOR to " + (p - 40)); #end
+			}
+			#if debugansi else trace("SGR: " + p); #end
 		}
 	}
 	public inline function cud(params:Array<String>):Void // Cursor Down

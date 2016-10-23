@@ -5,8 +5,10 @@ to run on multiple hardware devices.
 
 
 ####Depends
-[peote-socket](https://github.com/maitag/peote-socket) and [peote-view](https://github.com/maitag/peote-view)
+[peote-socket](https://github.com/maitag/peote-socket) and [peote-view](https://github.com/maitag/peote-view),
 (please download this first)
+
+for html5 haxe targets you can use [peote-proxy](https://github.com/maitag/peote-proxy) to connect
 
 ####Build
 

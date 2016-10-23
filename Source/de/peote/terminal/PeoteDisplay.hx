@@ -32,7 +32,7 @@ import haxe.Timer;
 import lime.graphics.Renderer;
 
 import de.peote.view.PeoteView;
-import de.peote.view.displaylist.DType;
+import de.peote.view.displaylist.DisplaylistType;
 
 class PeoteDisplay
 {
@@ -86,7 +86,7 @@ class PeoteDisplay
 		colors = [0x000000ff, 0xff5511ff, 0x55ff11ff, 0xfffa00ff, 0x2286ffff, 0xf0ee11ff, 0x11f0ffff, 0xfafafaff];
 		sgrReset();
 		
-		this.peoteView = new PeoteView(3, 10); // max_displaylists, max_programs (for all displaylists)
+		this.peoteView = new PeoteView({maxDisplaylists:2,maxPrograms:2,maxTextures:0,maxImages:1}); // max_displaylists, max_programs (for all displaylists)
 		startTime = Timer.stamp();
 				
 
@@ -100,13 +100,23 @@ class PeoteDisplay
 			buffer[buffer_pos + i] = new Array<Int>();			
 		}
 		
-		peoteView.setProgram(0);
-		peoteView.setImage(0, "assets/liberation_font_320x512_white.png", 320, 512);
-		//peoteView.setImage(0, "assets/peote_font_green.png", 512, 512);
+		peoteView.setTexture( {
+			texture:0,
+			w:512,
+			h:512
+		});
+		peoteView.setImage( {
+			image:0,
+			texture:0,
+			w:320,h:512,
+			filename:"assets/liberation_font_320x512_white.png"
+		});
+		peoteView.setProgram({program:0,texture:0});
+
 		peoteView.setDisplaylist( {
 			displaylist: 0,
-			type:DType.SIMPLE | DType.RGBA,
-			elements: this.max_elements, // for low-end devices better max_elements < 100 000
+			type:DisplaylistType.SIMPLE | DisplaylistType.RGBA,
+			maxElements: this.max_elements, // for low-end devices better max_elements < 100 000
 			renderBackground:true,
 			w:size_x * font_size_x,	
 			h:size_y * font_size_y,
@@ -114,11 +124,11 @@ class PeoteDisplay
 		});
 		
 		// cursor
-		peoteView.setProgram(1, "assets/lyapunov_greencursor.frag");
+		peoteView.setProgram({program:1, fshader:"assets/lyapunov_greencursor.frag"});
 		peoteView.setDisplaylist( {
 			displaylist: 1,
-			type:DType.SIMPLE,
-			elements: 10,
+			type:DisplaylistType.SIMPLE,
+			maxElements: 1,
 			z:1
 		});
 		

@@ -36,18 +36,11 @@ import lime.ui.Window;
 import lime.ui.Touch;
 import lime.graphics.Renderer;
 
+import bridge.PeoteSocketBridge;
+
 import de.peote.io.PeoteBytes;
 import de.peote.io.PeoteBytesInput;
-
-#if js
-
-#else
-import lime.Assets;
-#end
-
-//import lime.utils.ByteArray;
-import haxe.io.Bytes;
-
+import de.peote.io.PeoteBytesOutput;
 import de.peote.view.PeoteView;
 import de.peote.socket.PeoteSocket;
 import de.peote.telnet.PeoteTelnet;
@@ -79,38 +72,54 @@ class PeoteTelnetClient extends Application {
 		req.send();
 		conf = haxe.Json.parse( regex.replace(req.responseText, "") );
 		#else
-		conf = haxe.Json.parse( regex.replace(Assets.getText("assets/config.conf"), "") ); // TODO: problem with getText (.txt ??)
+		conf = haxe.Json.parse( regex.replace(lime.Assets.getText("assets/config.conf"), "") ); // TODO: problem with getText (.txt ??)
 		#end
 		
 		switch (window.renderer.context) {
 			case OPENGL (gl):
 				
 				window.enableTextEvents = true;
-				
-				peoteSocket = new PeoteSocket( { 
-					onConnect: function(connected, msg) {
-						trace("onConnect:" + connected + " - " + msg);
-						is_connected = true;
-						peoteTerminal = new PeoteTerminal(peoteTelnet, peoteDisplay);
-					},
-					onClose: function(msg) {
-						trace("onClose:" + msg);
-						is_connected = false;
-					},
-					onError: function(msg) {
-						trace("onError:"+msg);
-					},
-					onData: onData
-				});
+				window.focus();
 				
 				peoteDisplay = new PeoteDisplay(window.width, window.height);
-				peoteTelnet = new PeoteTelnet(peoteSocket, peoteDisplay.size_x, peoteDisplay.size_y);
 				
-				peoteSocket.connect(conf.server, conf.port);
+				PeoteSocketBridge.load( {
+					onload: openSocket,
+					prefareWebsockets: true,  // only for js
+					proxys: {
+						proxyServerWS:"localhost",  // only for js
+						proxyPortWS  : 3211,
+						
+						proxyServerSWF:"localhost", // js targets going throught peoteSocketBridge.swf
+						proxyPortSWF  :3211,
+					},
+					onfail: function() { trace("Browser doesn't support flash or websockets"); }
+				});
 				
 			default:
 				trace("only opengl supported");
 		}
+	}
+	public function openSocket():Void
+	{
+		peoteSocket = new PeoteSocket( { 
+			onConnect: function(connected, msg) {
+				trace("onConnect:" + connected + " - " + msg);
+				is_connected = true;
+				peoteTelnet = new PeoteTelnet(peoteSocket, peoteDisplay.size_x, peoteDisplay.size_y);
+				peoteTerminal = new PeoteTerminal(peoteTelnet, peoteDisplay);
+			},
+			onClose: function(msg) {
+				trace("onClose:" + msg);
+				is_connected = false;
+			},
+			onError: function(msg) {
+				trace("onError:"+msg);
+			},
+			onData: onData
+		});
+			
+		peoteSocket.connect(conf.server, conf.port);
 	}
 	
 	public inline function onData(peoteBytes:PeoteBytes):Void
@@ -132,17 +141,22 @@ class PeoteTelnetClient extends Application {
 
 	// text input
 	public override function onTextInput (window:Window, text:String):Void
-	{	trace("onTextInput");
+	{	//trace("onTextInput");
 		if (is_connected) peoteTerminal.onTextInput(text);
 	}
 	
 	
 	// keyboard input
 	public override function onKeyDown (window:Window, keyCode:KeyCode, modifier:KeyModifier):Void
-	{	trace("onKeyDown");
+	{	//trace("onKeyDown");
 		if (is_connected) peoteTerminal.onKeyDown(keyCode, modifier);
+		// TODO :
+		switch(keyCode) {
+			case KeyCode.TAB: window.onKeyDown.cancel(); // TODO -> focus in event
+			default:
+		}
 	}
-	//public override function onKeyUp (keyCode:KeyCode, modifier:KeyModifier):Void {}
+	//public override function onKeyUp (window:Window, keyCode:KeyCode, modifier:KeyModifier):Void {}
 	
 	
 	// screen and mouse

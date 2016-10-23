@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 	
-	<meta title="PeoteTelnetClient" package="de.peote.telnet" version="0.3.0" company="Sylvio Sell - maitag" />
+	<meta title="PeoteTelnetClient" package="de.peote.telnet" version="0.4.0" company="Sylvio Sell - maitag" />
 	<app main="PeoteTelnetClient" path="Export" file="PeoteTelnetClient" />
 	
 	<window fps="60" width="800" height="600" vsync="true" resizable="true" hardware="true" allow-shaders="true" require-shaders="true" depth-buffer="true" stencil-buffer="false" />
@@ -15,6 +15,8 @@
 	<haxelib name="lime" />
 	<haxelib name="format" />
 	
+	<dependency path="dependencies/swfobject-2.3.js" if="html5" />	
+
 	<haxedef name="peote_fillstride" />
 	
 	<!-- shader float precision for html5 and raspberry pi and android -->
@@ -23,14 +25,15 @@
 
 	<haxeflag name="-dce" value="full" />
 	
-	<haxedef name="no-traces" />
+	<haxedef name="source-map-content" />
+
+	<!--<haxedef name="no-traces" />-->
 	<haxedef name="debugkeyboard" />
 	<haxedef name="debugansi" />
 	<haxedef name="debugtelnet" />
 	<haxedef name="debugterminal" />
-	<haxedef name="debugansi" />
-	<haxedef name="debugkeyboard" />
 	
+	<assets path="../PeoteSocket/Export/flash/release/bin/peoteSocketBridge.swf" rename="peoteSocketBridge.swf" embed="false" if="html5" />
 	<assets path="Assets" rename="assets" exclude="lime.svg" />
 	<icon path="Assets/lime.svg" />
 	
