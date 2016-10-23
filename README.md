@@ -31,8 +31,8 @@ look into html5-test folder, how to get it run in webbrowser with flash-rawsocke
 ####TESTING
 
 - edit ip/port inside Assets/config.conf to what telnet(/mud;)-server adress you wanna connect
-- if run inside webbrowser, flashplayer (raw-socket-bridge) needs permission to leave sandbox,
-  wrap around that with some kind of [xml-daemon](https://github.com/maitag/peote-telnet/blob/master/html5-test/flashpolicyd.pl) running serverside
+- if run inside webbrowser, flashplayer (raw-socket-bridge) or websockets needs permission to leave sandbox,
+  so wrap around that with some kind of [proxy](https://github.com/maitag/peote-proxy) running serverside
 
 ####Why another Terminal Emulation ?
 
