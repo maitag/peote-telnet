@@ -28,6 +28,8 @@
 
 package;
 
+import haxe.io.Bytes;
+
 import lime.app.Application;
 import lime.graphics.RenderContext;
 import lime.ui.KeyCode;
@@ -36,16 +38,15 @@ import lime.ui.Window;
 import lime.ui.Touch;
 import lime.graphics.Renderer;
 
-import bridge.PeoteSocketBridge;
+import peote.bridge.PeoteSocketBridge;
 
-import de.peote.io.PeoteBytes;
-import de.peote.io.PeoteBytesInput;
-import de.peote.io.PeoteBytesOutput;
-import de.peote.view.PeoteView;
-import de.peote.socket.PeoteSocket;
-import de.peote.telnet.PeoteTelnet;
-import de.peote.terminal.PeoteTerminal;
-import de.peote.terminal.PeoteDisplay;
+import peote.io.PeoteBytesInput;
+import peote.io.PeoteBytesOutput;
+import peote.view.PeoteView;
+import peote.socket.PeoteSocket;
+import peote.telnet.PeoteTelnet;
+import peote.terminal.PeoteTerminal;
+import peote.terminal.PeoteDisplay;
 
 
 class PeoteTelnetClient extends Application {
@@ -85,7 +86,7 @@ class PeoteTelnetClient extends Application {
 				
 				PeoteSocketBridge.load( {
 					onload: openSocket,
-					prefareWebsockets: true,  // only for js
+					//prefareWebsockets: true,  // only for js
 					proxys: {
 						proxyServerWS:"localhost",  // only for js
 						proxyPortWS  : 3211,
@@ -100,6 +101,7 @@ class PeoteTelnetClient extends Application {
 				trace("only opengl supported");
 		}
 	}
+	
 	public function openSocket():Void
 	{
 		peoteSocket = new PeoteSocket( { 
@@ -122,9 +124,9 @@ class PeoteTelnetClient extends Application {
 		peoteSocket.connect(conf.server, conf.port);
 	}
 	
-	public inline function onData(peoteBytes:PeoteBytes):Void
+	public inline function onData(bytes:Bytes):Void
 	{
-		var input:PeoteBytesInput = new PeoteBytesInput(peoteBytes);
+		var input:PeoteBytesInput = new PeoteBytesInput(bytes);
 		peoteTerminal.remoteData( input );
 	}
 	

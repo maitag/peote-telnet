@@ -15,19 +15,20 @@
   </output>
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>
+    <class path="C:\HaxeToolkit\haxe\lib\peote-socket\git\Source" />
+    <class path="C:\HaxeToolkit\haxe\lib\peote-view\git\Source" />
+    <class path="C:\HaxeToolkit\haxe\lib\lime\3,7,2" />
     <class path="Source" />
-    <class path="..\PeoteView\Source" />
-    <class path="..\PeoteSocket\Source" />
-    <class path="Export\windows\cpp\haxe" />
+    <class path="Export\html5\release\haxe" />
   </classpaths>
   <!-- Build options -->
   <build>
-    <option directives="lime=2.8.3&#xA;format=3.2.1&#xA;no-traces&#xA;tools=2.8.3&#xA;debugkeyboard&#xA;no-compilation&#xA;lime-native&#xA;peote_fillstride&#xA;debugterminal&#xA;debugansi&#xA;debugtelnet&#xA;windows&#xA;desktop&#xA;display" />
+    <option directives="peote-socket=0.7.1&#xA;peote-view=0.5.9&#xA;lime=3.7.2&#xA;tools=3.7.2&#xA;debugkeyboard&#xA;howlerjs&#xA;no-compilation&#xA;peote_frag_medium_precision&#xA;lime-html5&#xA;peote_fillstride&#xA;source-map-content&#xA;debugterminal&#xA;peote_vert_medium_precision&#xA;debugansi&#xA;debugtelnet&#xA;html5&#xA;web&#xA;html5&#xA;html&#xA;display" />
     <option flashStrict="False" />
     <option noInlineOnDebug="False" />
     <option mainClass="ApplicationMain" />
     <option enabledebug="False" />
-    <option additional="-dce full&#xA;#--macro keep(&quot;PeoteTelnetClient&quot;)" />
+    <option additional="--macro lime.Lib.extraParams()&#xA;-dce full" />
   </build>
   <!-- haxelib libraries -->
   <haxelib>

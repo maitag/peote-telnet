@@ -26,13 +26,13 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.peote.terminal;
+package peote.terminal;
 
 import haxe.Timer;
 import lime.graphics.Renderer;
 
-import de.peote.view.PeoteView;
-import de.peote.view.displaylist.DisplaylistType;
+import peote.view.PeoteView;
+import peote.view.displaylist.DisplaylistType;
 
 class PeoteDisplay
 {

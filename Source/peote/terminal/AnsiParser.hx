@@ -26,41 +26,41 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.peote.terminal;
+package peote.terminal;
 
 // TODO: optimize with function-pointers &| regexps like: /\e\[(=|\?)?\d{0,3}(;\d{0,3})*(H|f|A|B|C|D|R|s|u|J|K|h|p|m)/g
  
 @:enum abstract ControlCode(Int) from Int to Int {
 
-	public static var CSI:Int	= 91;	// 155;	// Control Sequence Initiator "["
+	public inline static var CSI:Int	= 91;	// 155;	// Control Sequence Initiator "["
 }
 
 @:enum abstract AnsiCode(Int) from Int to Int {
 
- 	public static var CUU:Int = 'A'.charCodeAt(0); // Cursor Up
- 	public static var CUD:Int = 'B'.charCodeAt(0); // Cursor Down
- 	public static var CUF:Int = 'C'.charCodeAt(0); // Cursor Forward
- 	public static var CUB:Int = 'D'.charCodeAt(0); // Cursor Back
- 	public static var CNL:Int = 'E'.charCodeAt(0); // Cursor Next Line
- 	public static var CPL:Int = 'F'.charCodeAt(0); // Cursor Previous Line
- 	public static var CHA:Int = 'G'.charCodeAt(0); // Cursor Horizontal Absolute
- 	public static var CUP:Int = 'H'.charCodeAt(0); // Cursor Position
- 	public static var ED :Int = 'J'.charCodeAt(0); // Erase Display
- 	public static var EL :Int = 'K'.charCodeAt(0); // Erase in Line 
- 	public static var IL :Int = 'L'.charCodeAt(0); // Insert Line 
- 	public static var DL :Int = 'M'.charCodeAt(0); // Delete Line 
- 	public static var SU :Int = 'S'.charCodeAt(0); // Scroll Up
- 	public static var SD :Int = 'T'.charCodeAt(0); // Scroll Down
- 	public static var HVP:Int = 'f'.charCodeAt(0); // Horizontal and Vertical Position (same as CUP)
- 	public static var SGR:Int = 'm'.charCodeAt(0); // Select Graphic Rendition
- 	public static var AUX:Int = 'i'.charCodeAt(0); // AUX Port
- 	public static var DSR:Int = 'n'.charCodeAt(0); // Device Status Report
- 	public static var SCP:Int = 's'.charCodeAt(0); // Save Cursor Position
- 	public static var RCP:Int = 'u'.charCodeAt(0); // Restore Cursor Position
- 	public static var CHI:Int = 'l'.charCodeAt(0); // (Hides the cursor)
- 	public static var CSH:Int = 'h'.charCodeAt(0); // (Shows the cursor)
- 	public static var SKS:Int = 'p'.charCodeAt(0); // (set keyboard string)
- 	public static var DEL:Int = 'P'.charCodeAt(0); // delete char
+ 	public static var CUU(default, never):Int = 'A'.charCodeAt(0); // Cursor Up
+ 	public static var CUD(default, never):Int = 'B'.charCodeAt(0); // Cursor Down
+ 	public static var CUF(default, never):Int = 'C'.charCodeAt(0); // Cursor Forward
+ 	public static var CUB(default, never):Int = 'D'.charCodeAt(0); // Cursor Back
+ 	public static var CNL(default, never):Int = 'E'.charCodeAt(0); // Cursor Next Line
+ 	public static var CPL(default, never):Int = 'F'.charCodeAt(0); // Cursor Previous Line
+ 	public static var CHA(default, never):Int = 'G'.charCodeAt(0); // Cursor Horizontal Absolute
+ 	public static var CUP(default, never):Int = 'H'.charCodeAt(0); // Cursor Position
+ 	public static var ED (default, never):Int = 'J'.charCodeAt(0); // Erase Display
+ 	public static var EL (default, never):Int = 'K'.charCodeAt(0); // Erase in Line 
+ 	public static var IL (default, never):Int = 'L'.charCodeAt(0); // Insert Line 
+ 	public static var DL (default, never):Int = 'M'.charCodeAt(0); // Delete Line 
+ 	public static var SU (default, never):Int = 'S'.charCodeAt(0); // Scroll Up
+ 	public static var SD (default, never):Int = 'T'.charCodeAt(0); // Scroll Down
+ 	public static var HVP(default, never):Int = 'f'.charCodeAt(0); // Horizontal and Vertical Position (same as CUP)
+ 	public static var SGR(default, never):Int = 'm'.charCodeAt(0); // Select Graphic Rendition
+ 	public static var AUX(default, never):Int = 'i'.charCodeAt(0); // AUX Port
+ 	public static var DSR(default, never):Int = 'n'.charCodeAt(0); // Device Status Report
+ 	public static var SCP(default, never):Int = 's'.charCodeAt(0); // Save Cursor Position
+ 	public static var RCP(default, never):Int = 'u'.charCodeAt(0); // Restore Cursor Position
+ 	public static var CHI(default, never):Int = 'l'.charCodeAt(0); // (Hides the cursor)
+ 	public static var CSH(default, never):Int = 'h'.charCodeAt(0); // (Shows the cursor)
+ 	public static var SKS(default, never):Int = 'p'.charCodeAt(0); // (set keyboard string)
+ 	public static var DEL(default, never):Int = 'P'.charCodeAt(0); // delete char
 }
 
 class AnsiParser
@@ -69,8 +69,8 @@ class AnsiParser
 	public var mode:Int = Off;
 	
 	public static var Off:Int		 = 0; // parser not in work (check for ESC to start)
-	public static var Start:Int		 = 1; // Start Ansi Parsing
-	public static var Sequence:Int	 = 2; // is ESC [ Sequence
+	public inline static var Start:Int		 = 1; // Start Ansi Parsing
+	public inline static var Sequence:Int	 = 2; // is ESC [ Sequence
 	
 	var peoteTerminal:PeoteTerminal;
 	

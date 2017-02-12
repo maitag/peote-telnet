@@ -8,12 +8,11 @@
 	<window if="html5" fps="60" width="0" height="0" />
 	
 	<source path="Source" />
-	<!-- external haxe libs -->
-	<source path="../PeoteView/Source" />
-	<source path="../PeoteSocket/Source" />
 	
 	<haxelib name="lime" />
-	<haxelib name="format" />
+	<!--<haxelib name="format" />-->
+	<haxelib name="peote-socket" />
+	<haxelib name="peote-view" />
 	
 	<dependency path="dependencies/swfobject-2.3.js" if="html5" />	
 
@@ -33,7 +32,9 @@
 	<haxedef name="debugtelnet" />
 	<haxedef name="debugterminal" />
 	
-	<assets path="../PeoteSocket/Export/flash/release/bin/peoteSocketBridge.swf" rename="peoteSocketBridge.swf" embed="false" if="html5" />
+	<dependency path="dependencies/swfobject-2.3.js" if="html5" />	
+	<assets path="dependencies/peoteSocketBridge.swf" rename="peoteSocketBridge.swf" embed="false" if="html5" />
+
 	<assets path="Assets" rename="assets" exclude="lime.svg" />
 	<icon path="Assets/lime.svg" />
 	

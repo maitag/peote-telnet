@@ -26,17 +26,18 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.peote.terminal;
+package peote.terminal;
 
-import de.peote.io.PeoteBytesInput;
-import de.peote.io.PeoteBytes;
+import haxe.io.Bytes;
+import haxe.ds.Vector;
+
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
-import haxe.io.Bytes;
 
-import de.peote.telnet.PeoteTelnet;
-import de.peote.view.PeoteView;
-import haxe.ds.Vector;
+import peote.telnet.PeoteTelnet;
+import peote.view.PeoteView;
+import peote.io.PeoteBytesInput;
+
 
 class PeoteTerminal
 {

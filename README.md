@@ -4,28 +4,22 @@ written in [Haxe](http://haxe.org). Uses [OpenFl/Lime](http://www.openfl.org/doc
 to run on multiple hardware devices.
 
 
-####Depends
+####Depends on
 [peote-socket](https://github.com/maitag/peote-socket) and [peote-view](https://github.com/maitag/peote-view),
-(please download this first)
 
-for html5 haxe targets you can use [peote-proxy](https://github.com/maitag/peote-proxy) to connect
+```
+haxelib git peote-socket https://github.com/maitag/peote-socket
+haxelib git peote-view https://github.com/maitag/peote-view
+```
+
+
+For html5 haxe targets you can use [peote-proxy](https://github.com/maitag/peote-proxy) to redirect throught NAT!
 
 ####Build
 
-(look into peoteTelnetClient.lime file where external sources are!)
 
+`$ lime build peoteTelnetClient.lime linux  (android/windows/html5)`
 
-#####native OS:
-
-`$ lime build peoteTelnetClient.lime linux  (android/windows)`
-
-
-
-#####Javascript/WebGL:
-
-`$ lime build peoteTelnetClient.lime html5`
-
-look into html5-test folder, how to get it run in webbrowser with flash-rawsocket-bridge (PeoteSocketBridge.swf)
 
 
 ####TESTING
@@ -41,7 +35,8 @@ look into html5-test folder, how to get it run in webbrowser with flash-rawsocke
 
 ####Todo
 
+- better error handling
+- reconnect socket
 - more control commands (keyboard-input)
 - local echo switch
 - ansi-background-colors
-- reconnect socket
