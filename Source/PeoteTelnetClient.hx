@@ -86,7 +86,7 @@ class PeoteTelnetClient extends Application {
 				
 				PeoteSocketBridge.load( {
 					onload: openSocket,
-					//prefereWebsockets: true,  // only for js
+					//preferWebsockets: true,  // only for js
 					proxys: {
 						proxyServerWS:"localhost",  // only for js
 						proxyPortWS  : 3211,
