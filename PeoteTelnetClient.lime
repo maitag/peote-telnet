@@ -14,19 +14,18 @@
 	<haxelib name="peote-socket" />
 	<haxelib name="peote-view" />
 	
-	<dependency path="dependencies/swfobject-2.3.js" if="html5" />	
-
-	<haxedef name="peote_fillstride" />
+	<!--<haxedef name="peote_fillstride" />-->
 	
 	<!-- shader float precision for html5 and raspberry pi and android -->
 	<haxedef name="peote_vert_medium_precision" if="html5||rpi||android" />
 	<haxedef name="peote_frag_medium_precision" if="html5||rpi||android" />
 
-	<haxeflag name="-dce" value="full" />
+	<!--<haxeflag name="-dce" value="full" />-->
 	
-	<haxedef name="source-map-content" />
+	<!--<haxedef name="source-map-content" />-->
 
 	<!--<haxedef name="no-traces" />-->
+	<haxedef name="debugshaders" />
 	<haxedef name="debugkeyboard" />
 	<haxedef name="debugansi" />
 	<haxedef name="debugtelnet" />

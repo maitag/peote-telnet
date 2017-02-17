@@ -86,7 +86,7 @@ class PeoteDisplay
 		colors = [0x000000ff, 0xff5511ff, 0x55ff11ff, 0xfffa00ff, 0x2286ffff, 0xf0ee11ff, 0x11f0ffff, 0xfafafaff];
 		sgrReset();
 		
-		this.peoteView = new PeoteView({maxDisplaylists:2,maxPrograms:2,maxTextures:0,maxImages:1}); // max_displaylists, max_programs (for all displaylists)
+		this.peoteView = new PeoteView({maxDisplaylists:2,maxPrograms:2,maxTextures:2,maxImages:1});
 		startTime = Timer.stamp();
 				
 
