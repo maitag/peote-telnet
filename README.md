@@ -35,6 +35,7 @@ For html5 haxe targets you can use [peote-proxy](https://github.com/maitag/peote
 
 ####Todo
 
+- display resizing
 - better error handling
 - reconnect socket
 - more control commands (keyboard-input)
