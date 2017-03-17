@@ -44,8 +44,8 @@ class PeoteDisplay
 	var max_size_x:Int;
 	var max_size_y:Int;
 
-	var font_size_x:Int = 10;
-	var font_size_y:Int = 16;
+	public var font_size_x:Int = 10;
+	public var font_size_y:Int = 16;
 	
 	var colors:Array<Int>;
 	var fg_color:Int;
@@ -137,7 +137,7 @@ class PeoteDisplay
 	// ----------- Render Loop ------------------------------------
 	public inline function render(renderer:Renderer):Void
 	{
-		peoteView.render(Timer.stamp() - startTime, width, height, mouse_x, mouse_y, zoom);
+		peoteView.render(Timer.stamp() - startTime, width, height, zoom);
 	}
 
 	public inline function printChar(char:Int):Void 

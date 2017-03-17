@@ -86,7 +86,7 @@ class PeoteTelnetClient extends Application {
 				
 				PeoteSocketBridge.load( {
 					onload: openSocket,
-					//preferWebsockets: true,  // only for js
+					preferWebsockets: true,  // only for js
 					proxys: {
 						proxyServerWS:"localhost",  // only for js
 						proxyPortWS  : 3211,
@@ -166,8 +166,10 @@ class PeoteTelnetClient extends Application {
 	{
 		trace("onWindowResize:"+ window.width+','+ window.height);
 		if (is_connected) {
-			peoteDisplay.resize(window.width, window.height);
-			peoteTelnet.resize(peoteDisplay.size_x, peoteDisplay.size_y);
+			// TODO:
+			//peoteDisplay.resize(window.width, window.height);
+			//peoteTelnet.resize(peoteDisplay.size_x, peoteDisplay.size_y);
+			peoteTelnet.resize(Math.floor(window.width/peoteDisplay.font_size_x), Math.floor(window.height/peoteDisplay.font_size_y));
 		}
 	}
 	
