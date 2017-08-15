@@ -15,11 +15,6 @@
   </output>
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>
-    <class path="C:\HaxeToolkit\haxe\lib\peote-socket\git\Source" />
-    <class path="C:\HaxeToolkit\haxe\lib\peote-view\git\Source" />
-    <class path="C:\HaxeToolkit\haxe\lib\lime\3,7,2" />
-    <class path="Source" />
-    <class path="Export\html5\release\haxe" />
   </classpaths>
   <!-- Build options -->
   <build>

@@ -42,7 +42,6 @@ import peote.bridge.PeoteSocketBridge;
 
 import peote.io.PeoteBytesInput;
 import peote.io.PeoteBytesOutput;
-import peote.view.PeoteView;
 import peote.socket.PeoteSocket;
 import peote.telnet.PeoteTelnet;
 import peote.terminal.PeoteTerminal;

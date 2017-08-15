@@ -67,7 +67,6 @@ class PeoteDisplay
 	var displaylist_y_offset:Int = 0;
 	var displaylist_y_scroll:Int = 0;
 	
-	var startTime:Float;
     var width: Int;
     var height: Int;
     public var mouse_x: Int = 0;
@@ -87,8 +86,6 @@ class PeoteDisplay
 		sgrReset();
 		
 		this.peoteView = new PeoteView({maxDisplaylists:2,maxPrograms:2,maxTextures:1,maxImages:1});
-		startTime = Timer.stamp();
-				
 
 		this.size_x = Math.floor(width / font_size_x);
 		this.size_y = Math.floor(height / font_size_y);
@@ -137,7 +134,7 @@ class PeoteDisplay
 	// ----------- Render Loop ------------------------------------
 	public inline function render(renderer:Renderer):Void
 	{
-		peoteView.render(Timer.stamp() - startTime, width, height, zoom);
+		peoteView.render(width, height, zoom);
 	}
 
 	public inline function printChar(char:Int):Void 
