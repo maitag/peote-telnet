@@ -96,7 +96,10 @@ class PeoteDisplay
 		for (i in 0...max_buffer) {
 			buffer[buffer_pos + i] = new Array<Int>();			
 		}
-		
+	}
+	
+	public function run()
+	{
 		peoteView.setTexture( {
 			texture:0,
 			w:512,

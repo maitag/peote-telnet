@@ -64,17 +64,6 @@ class PeoteTelnetClient extends Application {
 	
 	public override function onWindowCreate (window:Window):Void
 	{	
-		// load config from json file
-		var regex = new EReg("//.*?$","gm");
-		#if js
-		var req = js.Browser.createXMLHttpRequest();
-		req.open('GET', "assets/config.conf", false);
-		req.send();
-		conf = haxe.Json.parse( regex.replace(req.responseText, "") );
-		#else
-		conf = haxe.Json.parse( regex.replace(lime.Assets.getText("assets/config.conf"), "") ); // TODO: problem with getText (.txt ??)
-		#end
-		
 		switch (window.renderer.context) {
 			case OPENGL (gl):
 				
@@ -83,22 +72,33 @@ class PeoteTelnetClient extends Application {
 				
 				peoteDisplay = new PeoteDisplay(window.width, window.height);
 				
-				PeoteSocketBridge.load( {
-					onload: openSocket,
-					preferWebsockets: true,  // only for js
-					proxys: {
-						proxyServerWS:"localhost",  // only for js
-						proxyPortWS  : 3211,
-						
-						proxyServerSWF:"localhost", // js targets going throught peoteSocketBridge.swf
-						proxyPortSWF  :3211,
-					},
-					onfail: function() { trace("Browser doesn't support flash or websockets"); }
-				});
-				
 			default:
 				trace("only opengl supported");
 		}
+	}
+	
+	public override function onPreloadComplete ():Void
+	{	
+		// load config from json file
+		var regex = new EReg("//.*?$","gm");
+		conf = haxe.Json.parse( regex.replace(lime.Assets.getText("assets/config.conf"), "") ); // TODO: problem with getText (.txt ??)
+
+		peoteDisplay.run();
+
+		PeoteSocketBridge.load( {
+			onload: openSocket,
+			preferWebsockets: true,  // only for js
+			proxys: {
+				proxyServerWS:"localhost",  // only for js
+				proxyPortWS  : 3211,
+				
+				proxyServerSWF:"localhost", // js targets going throught peoteSocketBridge.swf
+				proxyPortSWF  :3211,
+			},
+			onfail: function() { trace("Browser doesn't support flash or websockets"); }
+		});
+				
+
 	}
 	
 	public function openSocket():Void
