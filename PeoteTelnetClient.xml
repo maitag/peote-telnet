@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 	
-	<meta title="PeoteTelnetClient" package="peote.telnet" version="0.4.3" company="Sylvio Sell - maitag" />
+	<meta title="PeoteTelnetClient" package="peote.telnet" version="0.4.4" company="Sylvio Sell - maitag" />
 	<app main="PeoteTelnetClient" path="Export" file="PeoteTelnetClient" />
 	
 	<window fps="60" width="800" height="600" vsync="true" resizable="true" hardware="true" allow-shaders="true" require-shaders="true" depth-buffer="true" stencil-buffer="false" />
@@ -13,6 +13,7 @@
 	<haxelib name="peote-socket" /><!-- install via: haxelib git peote-socket https://github.com/maitag/peote-socket  -->
 	<haxelib name="peote-view" />  <!-- install via: haxelib git peote-view https://github.com/maitag/peote-view  -->
 	
+	
 	<!--<haxedef name="peote_fillstride" />-->
 	
 	<!-- shader float precision for html5 and raspberry pi and android -->
@@ -23,12 +24,12 @@
 	
 	<!--<haxedef name="source-map-content" />-->
 
-	<!--<haxedef name="no-traces" />-->
-	<haxedef name="debugshaders" />
+	<haxedef name="no-traces" />
+	<!--<haxedef name="debugshaders" />
 	<haxedef name="debugkeyboard" />
 	<haxedef name="debugansi" />
 	<haxedef name="debugtelnet" />
-	<haxedef name="debugterminal" />
+	<haxedef name="debugterminal" />-->
 	
 	<dependency path="dependencies/swfobject-2.3.js" if="html5" />	
 	<assets path="dependencies/peoteSocketBridge.swf" rename="peoteSocketBridge.swf" embed="false" if="html5" />

@@ -28,7 +28,6 @@
 
 package peote.terminal;
 
-import haxe.Timer;
 import lime.graphics.Renderer;
 
 import peote.view.PeoteView;
